@@ -409,17 +409,35 @@
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var data = JSON.parse(e.postData.contents);
   
+  // Otomatis membuat judul kolom jika sheet masih kosong (tanpa perlu daftar nama siswa dulu)
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(["Waktu", "Nama Siswa", "Kelas", "No Absen", "Skor PG", "PG Benar", "Durasi", "Detail Jawaban PG", "Detail Jawaban Esai"]);
+    sheet.appendRow([
+      "Waktu Kirim",
+      "Nama Siswa",
+      "Kelas",
+      "No Absen",
+      "Jumlah Benar PG",
+      "Jumlah Salah PG",
+      "Total Soal PG",
+      "Nilai PG (0-100)",
+      "Esai Terjawab",
+      "Durasi Pengerjaan",
+      "Detail Jawaban PG",
+      "Detail Jawaban Esai"
+    ]);
   }
   
+  // Langsung mencatat nama siswa baru & hasil koreksi otomatis ke baris baru
   sheet.appendRow([
     new Date(),
     data.nama,
     data.kelas,
     data.absen,
+    data.jumlahBenar,
+    data.jumlahSalah,
+    data.totalPG,
     data.skorPG,
-    data.benarPG,
+    data.esaiTerjawab,
     data.durasi,
     JSON.stringify(data.jawabanPG),
     JSON.stringify(data.jawabanEsai)
@@ -1861,6 +1879,7 @@ async function finalizeSubmission() {
     });
 
     const finalScorePG = totalPG > 0 ? Math.round((correctPG / totalPG) * 100) : 0;
+    const wrongPG = totalPG - correctPG;
     const durationStr = formatDuration(secondsElapsed);
 
     // Update record siswa di tabel kelas
@@ -1890,25 +1909,29 @@ async function finalizeSubmission() {
     const syncText = document.getElementById('syncStatusText');
 
     if (customWebhookUrl) {
-        syncText.textContent = 'Mengirim data ke Google Spreadsheet...';
+        syncText.textContent = 'Mengirim data & hasil koreksi otomatis ke Google Spreadsheet...';
         try {
             await fetch(customWebhookUrl, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     nama: currentStudent.nama,
                     kelas: currentStudent.kelas,
                     absen: currentStudent.absen,
+                    jumlahBenar: correctPG,
+                    jumlahSalah: wrongPG,
+                    totalPG: totalPG,
                     skorPG: finalScorePG,
                     benarPG: `${correctPG}/${totalPG}`,
+                    esaiTerjawab: `${essayAnswered}/${totalEssay}`,
                     durasi: durationStr,
                     jawabanPG: detailPG,
                     jawabanEsai: detailEssay
                 })
             });
             syncBox.className = 'mt-5 p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-sm flex items-center justify-center gap-2 text-emerald-300';
-            syncText.textContent = 'Berhasil! Data nilai dan seluruh jawaban telah terkirim ke Google Spreadsheet.';
+            syncText.textContent = `Berhasil! Nama ${currentStudent.nama} & hasil (${correctPG} Benar / Nilai ${finalScorePG}) otomatis masuk ke Spreadsheet.`;
         } catch (err) {
             syncBox.className = 'mt-5 p-4 rounded-xl bg-amber-950/60 border border-amber-500/40 text-sm flex items-center justify-center gap-2 text-amber-300';
             syncText.textContent = 'Tersimpan di rekap lokal kelas. Gunakan tombol Unduh CSV jika koneksi terhambat.';
