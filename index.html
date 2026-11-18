@@ -136,14 +136,11 @@
                     </div>
                 </form>
 
-                <div class="mt-6 pt-5 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                <div class="mt-6 pt-5 border-t border-slate-800 flex items-center justify-center text-xs text-slate-400">
                     <span class="flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Server Kelas Siap (Kapasitas 30+ Siswa)
+                        Server Kelas Siap (Kapasitas 30+ Siswa • Soal & Opsi Teracak)
                     </span>
-                    <button onclick="openModal('bankSoalModal')" class="text-cyan-400 hover:underline font-medium">
-                        Lihat Daftar 100 Soal Seimbang
-                    </button>
                 </div>
             </div>
         </section>
@@ -169,8 +166,8 @@
                         <div class="font-bold text-cyan-400 text-base sm:text-lg" id="progressCounter">1 / 100</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-[11px] uppercase tracking-wider text-slate-400">Skor PG</div>
-                        <div class="font-bold text-emerald-400 text-base sm:text-lg" id="liveScore">0</div>
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400">Terjawab</div>
+                        <div class="font-bold text-emerald-400 text-base sm:text-lg" id="liveAnsweredStat">0</div>
                     </div>
                     <div class="text-center">
                         <div class="text-[11px] uppercase tracking-wider text-slate-400">Waktu</div>
@@ -507,32 +504,7 @@ function doPost(e) {
         </div>
     </div>
 
-    <!-- MODAL 2: PRATINJAU BANK SOAL YANG SUDAH DISEIMBANGKAN -->
-    <div id="bankSoalModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-6 max-h-[90vh] flex flex-col">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-                <div>
-                    <h3 class="text-lg font-bold text-white">Bank Soal Diperbarui (80 PG Anti-Tebak + 20 Esai)</h3>
-                    <p class="text-xs text-slate-400">Opsi pengecoh dibuat lebih panjang dari kunci jawaban & posisinya teracak merata.</p>
-                </div>
-                <button onclick="closeModal('bankSoalModal')" class="text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
-            </div>
-
-            <div class="mb-3 flex gap-2">
-                <input type="text" id="searchQuestionInput" onkeyup="renderBankSoalPreview()" placeholder="Cari kata kunci soal (misal: pinMode, ultrasonik, Arduino, IoT)..."
-                    class="flex-1 px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white">
-                <button onclick="exportBankSoalCSV()" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold">
-                    Ekspor Bank Soal (.CSV)
-                </button>
-            </div>
-
-            <div id="bankSoalList" class="flex-1 overflow-y-auto space-y-3 pr-2 text-sm">
-                <!-- Diisi via JS -->
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 3: KONFIRMASI KIRIM -->
+    <!-- MODAL 2: KONFIRMASI KIRIM -->
     <div id="confirmModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 text-center space-y-4">
             <h3 class="text-xl font-bold text-white">Kirim Jawaban Sekarang?</h3>
@@ -1551,73 +1523,12 @@ window.onload = function() {
         const statEl = document.getElementById('statWebhookStatus');
         if (statEl) statEl.textContent = 'Terhubung ke Google Sheets ✓';
     }
-    renderBankSoalPreview();
     renderLeaderboard();
 };
-
-// Navigasi antar tampilan
-function switchView(viewName) {
-    ['viewLobby', 'viewGame', 'viewResult', 'viewTeacher'].forEach(id => {
-        document.getElementById(id).classList.add('hidden');
-    });
-    if (viewName === 'lobby') document.getElementById('viewLobby').classList.remove('hidden');
-    if (viewName === 'game') document.getElementById('viewGame').classList.remove('hidden');
-    if (viewName === 'result') document.getElementById('viewResult').classList.remove('hidden');
-    if (viewName === 'teacher') {
-        renderLeaderboard();
-        document.getElementById('viewTeacher').classList.remove('hidden');
-    }
-}
-
-function openModal(id) {
-    document.getElementById(id).classList.remove('hidden');
-}
-
-function closeModal(id) {
-    document.getElementById(id).classList.add('hidden');
-}
-
-function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.remove('hidden');
-    setTimeout(() => t.classList.add('hidden'), 3500);
-}
-
-// Acak array (Fisher-Yates)
-function shuffleArray(arr) {
-    const copy = [...arr];
-    for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-}
-
-/**
- * MEMULAI KUIS UNTUK SISWA
- */
-function startGame(e) {
-    e.preventDefault();
-    const name = document.getElementById('studentName').value.trim();
-    const sClass = document.getElementById('studentClass').value;
-    const absent = document.getElementById('studentAbsent').value;
-    const mode = document.getElementById('quizMode').value;
-
-    if (!name) return;
-
-    currentStudent = {
-        id: 'USR-' + Date.now(),
-        nama: name,
-        kelas: sClass,
-        absen: absent,
-        status: 'Sedang Mengerjakan',
-        startTime: new Date()
-    };
-
-    // Filter soal sesuai mode
-    const pgList = BANK_SOAL.filter(item => item.type === 'PG');
-    const essayList = BANK_SOAL.filter(item => item.type === 'ESSAY');
+// ... existing code ... -->
+    // Filter & acak urutan soal untuk setiap siswa agar tidak bisa saling mencontek
+    const pgList = shuffleArray(BANK_SOAL.filter(item => item.type === 'PG'));
+    const essayList = shuffleArray(BANK_SOAL.filter(item => item.type === 'ESSAY'));
 
     if (mode === 'all') {
         activeQuestions = [...pgList, ...essayList];
@@ -1626,7 +1537,7 @@ function startGame(e) {
     } else if (mode === 'essay') {
         activeQuestions = [...essayList];
     } else if (mode === 'quick') {
-        activeQuestions = [...shuffleArray(pgList).slice(0, 20), ...shuffleArray(essayList).slice(0, 5)];
+        activeQuestions = [...pgList.slice(0, 20), ...essayList.slice(0, 5)];
     }
 
     // Siapkan pengacakan posisi opsi A, B, C, D pada setiap soal PG
@@ -1638,601 +1549,48 @@ function startGame(e) {
             optionShuffleMap[q.id] = shuffleArray([0, 1, 2, 3]);
         }
     });
-
-    currentIdx = 0;
-    secondsElapsed = 0;
-
-    // Daftarkan ke daftar kelas aktif (live monitoring)
-    classRecords.unshift({
-        ...currentStudent,
-        benarPG: 0,
-        totalPG: activeQuestions.filter(q => q.type === 'PG').length,
-        skorPG: 0,
-        esaiDijawab: 0,
-        totalEsai: activeQuestions.filter(q => q.type === 'ESSAY').length,
-        durasi: '00:00',
-        jawabanPG: {},
-        jawabanEsai: {}
-    });
-
-    // Update UI Header Siswa
-    document.getElementById('avatarInitial').textContent = name.charAt(0).toUpperCase();
-    document.getElementById('displayStudentName').textContent = name;
-    document.getElementById('displayStudentMeta').textContent = `Kelas ${sClass} • Absen ${absent}`;
-
-    startTimer();
-    buildNavigatorGrid();
-    renderQuestion();
-    switchView('game');
-    showToast(`Selamat mengerjakan, ${name}!`);
-}
-
-function startTimer() {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        secondsElapsed++;
-        const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-        const secs = String(secondsElapsed % 60).padStart(2, '0');
-        document.getElementById('timerDisplay').textContent = `${mins}:${secs}`;
-    }, 1000);
-}
-
-function formatDuration(sec) {
-    const mins = String(Math.floor(sec / 60)).padStart(2, '0');
-    const secs = String(sec % 60).padStart(2, '0');
-    return `${mins}:${secs}`;
-}
-
-/**
- * MERENDER SOAL SAAT INI
- */
-function renderQuestion() {
-    const q = activeQuestions[currentIdx];
-    const total = activeQuestions.length;
-
-    // Update indikator progres
-    document.getElementById('progressCounter').textContent = `${currentIdx + 1} / ${total}`;
-    document.getElementById('progressBar').style.width = `${((currentIdx + 1) / total) * 100}%`;
-
+// ... existing code ... -->
     const badge = document.getElementById('questionBadge');
     const lenInfo = document.getElementById('lengthBalanceInfo');
 
     if (q.type === 'PG') {
-        badge.textContent = `PILIHAN GANDA • SOAL #${q.id}`;
+        badge.textContent = `PILIHAN GANDA • NO. ${currentIdx + 1}`;
         badge.className = 'px-3 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 text-xs font-bold border border-cyan-500/30';
-        lenInfo.textContent = 'Pengecoh lebih panjang dari kunci & posisi teracak';
+        lenInfo.textContent = 'Pilih satu jawaban paling tepat';
     } else {
-        badge.textContent = `ESAI ANALISIS • SOAL #${q.id}`;
+        badge.textContent = `ESAI ANALISIS • NO. ${currentIdx + 1}`;
         badge.className = 'px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30';
         lenInfo.textContent = 'Uraikan jawaban secara jelas & sistematis';
     }
-
-    // Format teks pertanyaan dan blok kode ```cpp ... ```
-    document.getElementById('questionContent').innerHTML = formatQuestionText(q.q);
-
-    const optContainer = document.getElementById('optionsContainer');
-    const essayContainer = document.getElementById('essayContainer');
-
-    if (q.type === 'PG') {
-        optContainer.classList.remove('hidden');
-        essayContainer.classList.add('hidden');
-        optContainer.innerHTML = '';
-
-        const shuffledIndices = optionShuffleMap[q.id];
-        const letters = ['A', 'B', 'C', 'D'];
-        const savedOriginalIdx = userAnswers[q.id];
-
-        shuffledIndices.forEach((origIdx, displayPos) => {
-            const isSelected = savedOriginalIdx === origIdx;
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.onclick = () => selectOption(q.id, origIdx);
-            btn.className = `option-card w-full text-left p-4 rounded-xl border flex items-start gap-3.5 ${
-                isSelected
-                    ? 'bg-cyan-600/20 border-cyan-400 text-white shadow-lg shadow-cyan-500/10'
-                    : 'bg-slate-950/80 border-slate-800 hover:border-slate-600 text-slate-200'
-            }`;
-
-            btn.innerHTML = `
-                <span class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-sm ${
-                    isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-300'
-                }">
-                    ${letters[displayPos]}
-                </span>
-                <span class="pt-1 text-sm sm:text-base leading-snug">${escapeHtml(q.options[origIdx])}</span>
-            `;
-            optContainer.appendChild(btn);
-        });
-    } else {
-        optContainer.classList.add('hidden');
-        essayContainer.classList.remove('hidden');
-        const essayInput = document.getElementById('essayInput');
-        essayInput.value = userAnswers[q.id] || '';
-        updateWordCount(essayInput.value);
-
-        essayInput.oninput = function() {
-            userAnswers[q.id] = this.value;
-            updateWordCount(this.value);
-            updateLiveProgress();
-        };
-    }
-
-    // Atur tombol navigasi
-    document.getElementById('btnPrev').disabled = currentIdx === 0;
-    if (currentIdx === total - 1) {
-        document.getElementById('btnNext').classList.add('hidden');
-        document.getElementById('btnSubmitQuiz').classList.remove('hidden');
-    } else {
-        document.getElementById('btnNext').classList.remove('hidden');
-        document.getElementById('btnSubmitQuiz').classList.add('hidden');
-    }
-
-    updateNavigatorHighlight();
-}
-
-function formatQuestionText(raw) {
-    // Mendeteksi blok kode ```cpp ... ```
-    const parts = raw.split(/```cpp\n([\s\S]*?)```/g);
-    let html = '';
-    for (let i = 0; i < parts.length; i++) {
-        if (i % 2 === 0) {
-            if (parts[i].trim()) {
-                html += `<p>${escapeHtml(parts[i].trim()).replace(/\n/g, '<br>')}</p>`;
-            }
-        } else {
-            html += `<pre class="font-mono-code text-xs sm:text-sm bg-slate-950 border border-slate-800 text-emerald-300 p-4 rounded-xl overflow-x-auto leading-relaxed">${escapeHtml(parts[i].trim())}</pre>`;
-        }
-    }
-    return html;
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function selectOption(questionId, originalOptionIdx) {
-    userAnswers[questionId] = originalOptionIdx;
-    updateLiveProgress();
-    renderQuestion();
-}
-
-function updateWordCount(text) {
-    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-    document.getElementById('essayWordCount').textContent = `${words} kata`;
-}
-
-function updateLiveProgress() {
-    // Hitung skor PG sementara & jumlah terjawab
-    let correct = 0;
-    let totalPG = 0;
-    let answered = 0;
-    let essayDone = 0;
-
-    activeQuestions.forEach(q => {
-        const ans = userAnswers[q.id];
-        if (q.type === 'PG') {
-            totalPG++;
-            if (ans !== undefined) {
-                answered++;
-                if (ans === q.answer) correct++;
-            }
-        } else {
-            if (ans && ans.trim().length > 0) {
-                answered++;
-                essayDone++;
-            }
-        }
-    });
-
+// ... existing code ... -->
     const scorePG = totalPG > 0 ? Math.round((correct / totalPG) * 100) : 0;
-    document.getElementById('liveScore').textContent = scorePG;
+    document.getElementById('liveAnsweredStat').textContent = `${answered}/${activeQuestions.length}`;
     document.getElementById('answeredCount').textContent = `${answered}/${activeQuestions.length} Terjawab`;
 
     // Sinkronkan ke record kelas aktif
-    const rec = classRecords.find(r => r.id === currentStudent.id);
-    if (rec) {
-        rec.benarPG = correct;
-        rec.skorPG = scorePG;
-        rec.esaiDijawab = essayDone;
-        rec.durasi = formatDuration(secondsElapsed);
-    }
-
-    updateNavigatorHighlight();
-}
-
-function prevQuestion() {
-    if (currentIdx > 0) {
-        currentIdx--;
-        renderQuestion();
-    }
-}
-
-function nextQuestion() {
-    if (currentIdx < activeQuestions.length - 1) {
-        currentIdx++;
-        renderQuestion();
-    }
-}
-
-function jumpToQuestion(idx) {
-    currentIdx = idx;
-    renderQuestion();
-}
-
-function toggleQuestionDrawer() {
-    const nav = document.getElementById('questionNavigator');
-    nav.classList.toggle('hidden');
-}
-
-function buildNavigatorGrid() {
-    const grid = document.getElementById('navGrid');
-    grid.innerHTML = '';
-    activeQuestions.forEach((q, idx) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.id = `navBtn_${idx}`;
-        btn.textContent = idx + 1;
-        btn.onclick = () => jumpToQuestion(idx);
-        btn.className = 'py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
-        grid.appendChild(btn);
-    });
-}
-
-function updateNavigatorHighlight() {
-    activeQuestions.forEach((q, idx) => {
-        const btn = document.getElementById(`navBtn_${idx}`);
-        if (!btn) return;
-        const ans = userAnswers[q.id];
-        const isAnswered = q.type === 'PG' ? ans !== undefined : (ans && ans.trim().length > 0);
-
-        if (idx === currentIdx) {
-            btn.className = 'py-1.5 rounded-lg text-xs font-bold bg-cyan-500 text-slate-950 ring-2 ring-cyan-300';
-        } else if (isAnswered) {
-            btn.className = 'py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/80 text-white';
-        } else {
-            btn.className = 'py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700';
-        }
-    });
-}
-
-/**
- * KONFIRMASI & PENGIRIMAN HASIL KE SPREADSHEET
- */
-function confirmSubmitQuiz() {
-    let answered = 0;
-    activeQuestions.forEach(q => {
-        const ans = userAnswers[q.id];
-        if (q.type === 'PG' && ans !== undefined) answered++;
-        if (q.type === 'ESSAY' && ans && ans.trim().length > 0) answered++;
-    });
-
-    document.getElementById('confirmSummaryText').textContent =
-        `Anda telah menjawab ${answered} dari ${activeQuestions.length} soal. Apakah Anda yakin ingin mengakhiri kuis dan mengirim jawaban ke Spreadsheet?`;
-    openModal('confirmModal');
-}
-
-async function finalizeSubmission() {
-    closeModal('confirmModal');
-    clearInterval(timerInterval);
-
-    let correctPG = 0;
-    let totalPG = 0;
-    let essayAnswered = 0;
-    let totalEssay = 0;
-    const detailPG = {};
-    const detailEssay = {};
-
-    activeQuestions.forEach(q => {
-        const ans = userAnswers[q.id];
-        if (q.type === 'PG') {
-            totalPG++;
-            const isRight = ans === q.answer;
-            if (isRight) correctPG++;
-            detailPG[`Soal_${q.id}`] = ans !== undefined ? `${q.options[ans]} (${isRight ? 'Benar' : 'Salah'})` : 'Kosong';
-        } else {
-            totalEssay++;
-            if (ans && ans.trim().length > 0) essayAnswered++;
-            detailEssay[`Esai_${q.id}`] = ans || '';
-        }
-    });
-
-    const finalScorePG = totalPG > 0 ? Math.round((correctPG / totalPG) * 100) : 0;
-    const wrongPG = totalPG - correctPG;
-    const durationStr = formatDuration(secondsElapsed);
-
-    // Update record siswa di tabel kelas
-    const rec = classRecords.find(r => r.id === currentStudent.id);
-    if (rec) {
-        rec.status = 'Selesai';
-        rec.benarPG = correctPG;
-        rec.skorPG = finalScorePG;
-        rec.esaiDijawab = essayAnswered;
-        rec.durasi = durationStr;
-        rec.jawabanPG = detailPG;
-        rec.jawabanEsai = detailEssay;
-    }
-
-    // Tampilkan layar hasil
-    document.getElementById('resultSubtitle').textContent =
-        `${currentStudent.nama} (${currentStudent.kelas} - Absen ${currentStudent.absen})`;
-    document.getElementById('resScorePG').textContent = finalScorePG;
-    document.getElementById('resCorrectPG').textContent = `${correctPG}/${totalPG}`;
-    document.getElementById('resEssayCount').textContent = `${essayAnswered}/${totalEssay}`;
-    document.getElementById('resDuration').textContent = durationStr;
-
-    switchView('result');
-
-    // Kirim ke Google Spreadsheet jika URL Apps Script telah diatur
-    const syncBox = document.getElementById('syncStatusBox');
-    const syncText = document.getElementById('syncStatusText');
-
-    if (customWebhookUrl) {
-        syncText.textContent = 'Mengirim data & hasil koreksi otomatis ke Google Spreadsheet...';
-        const payloadObj = {
-            nama: currentStudent.nama,
-            kelas: currentStudent.kelas,
-            absen: currentStudent.absen,
-            jumlahBenar: correctPG,
-            jumlahSalah: wrongPG,
-            totalPG: totalPG,
-            skorPG: finalScorePG,
-            benarPG: `${correctPG}/${totalPG}`,
-            esaiTerjawab: `${essayAnswered}/${totalEssay}`,
-            durasi: durationStr,
-            jawabanPG: detailPG,
-            jawabanEsai: detailEssay
-        };
-
-        try {
-            const formData = new URLSearchParams();
-            formData.append('payload', JSON.stringify(payloadObj));
-
-            await fetch(customWebhookUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData.toString()
-            });
-            syncBox.className = 'mt-5 p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-sm flex items-center justify-center gap-2 text-emerald-300';
-            syncText.textContent = `Berhasil! Nama ${currentStudent.nama} & hasil (${correctPG} Benar / Nilai ${finalScorePG}) otomatis masuk ke Spreadsheet.`;
-        } catch (err) {
-            syncBox.className = 'mt-5 p-4 rounded-xl bg-amber-950/60 border border-amber-500/40 text-sm flex items-center justify-center gap-2 text-amber-300';
-            syncText.textContent = 'Tersimpan di rekap lokal kelas. Gunakan tombol Unduh CSV jika koneksi terhambat.';
-        }
-    } else {
-        syncBox.className = 'mt-5 p-4 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-sm flex items-center justify-center gap-2 text-cyan-200';
-        syncText.textContent = 'Data terekam di Rekap Kelas (30+ User). Silakan unduh CSV atau hubungkan URL Google Apps Script.';
-    }
-}
-
-function resetToLobby() {
-    document.getElementById('studentName').value = '';
-    document.getElementById('studentAbsent').value = '';
-    switchView('lobby');
-}
-
-/**
- * ============================================================================
- * FITUR DASHBOARD 30+ USER & EKSPOR SPREADSHEET (CSV / GOOGLE SHEETS)
- * ============================================================================
- */
-function simulate30Students() {
-    const sampleNames = [
-        "Aditya Pratama", "Aisyah Putri", "Alif Ramadhan", "Amanda Zahra", "Andika Saputra",
-        "Anisa Rahmawati", "Arya Wijaya", "Aulia Fitriani", "Bagas Kara", "Bella Safitri",
-        "Cahya Nugraha", "Citra Lestari", "Dani Setiawan", "Desi Ratnasari", "Dimas Anggara",
-        "Dina Marlina", "Eko Prasetyo", "Elsa Permata", "Fajar Nugroho", "Farah Nabila",
-        "Galih Permana", "Gita Gutawa", "Hendra Gunawan", "Indah Permatasari", "Irfan Hakim",
-        "Kartika Sari", "Lukman Hakim", "Maya Septiani", "Muhammad Rizky", "Nabila Syakieb"
-    ];
-
-    sampleNames.forEach((nama, i) => {
-        const benar = Math.floor(Math.random() * 25) + 55; // 55 - 79 benar
-        const skor = Math.round((benar / 80) * 100);
-        const mins = Math.floor(Math.random() * 20) + 25;
-        const secs = String(Math.floor(Math.random() * 60)).padStart(2, '0');
-
-        classRecords.push({
-            id: 'SIM-' + i + '-' + Date.now(),
-            nama: nama,
-            kelas: `X-${(i % 6) + 1}`,
-            absen: i + 1,
-            status: 'Selesai',
-            benarPG: benar,
-            totalPG: 80,
-            skorPG: skor,
-            esaiDijawab: 20,
-            totalEsai: 20,
-            durasi: `${mins}:${secs}`,
-            jawabanPG: { Info: 'Data Simulasi 30 Siswa' },
-            jawabanEsai: { Info: '20 Esai Lengkap Terisi' }
-        });
-    });
-
-    renderLeaderboard();
-    showToast('30 Siswa simulasi berhasil masuk ke dalam arena kelas!');
-}
-
-function renderLeaderboard() {
-    const tbody = document.getElementById('leaderboardTableBody');
-    document.getElementById('statTotalUsers').textContent = `${classRecords.length} Siswa`;
-
-    if (classRecords.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" class="py-8 text-center text-slate-400">
-                    Belum ada siswa yang masuk. Klik <strong>"+ Simulasikan 30 Siswa Masuk"</strong> atau mulai kuis dari halaman siswa.
-                </td>
-            </tr>`;
-        document.getElementById('statAvgScore').textContent = '0';
-        document.getElementById('statMaxScore').textContent = '0';
-        return;
-    }
-
-    // Urutkan berdasarkan skor PG tertinggi
-    const sorted = [...classRecords].sort((a, b) => b.skorPG - a.skorPG);
-    const totalScore = sorted.reduce((acc, cur) => acc + cur.skorPG, 0);
-    document.getElementById('statAvgScore').textContent = Math.round(totalScore / sorted.length);
-    document.getElementById('statMaxScore').textContent = sorted[0].skorPG;
-
-    tbody.innerHTML = sorted.map((r, idx) => `
-        <tr class="hover:bg-slate-800/50 transition">
-            <td class="py-3 px-4 font-bold text-slate-400">${idx + 1}</td>
-            <td class="py-3 px-4 font-semibold text-white">${escapeHtml(r.nama)}</td>
-            <td class="py-3 px-4 text-slate-300">${r.kelas} • Absen ${r.absen}</td>
-            <td class="py-3 px-4">
-                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    r.status === 'Selesai' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
-                }">${r.status}</span>
-            </td>
-            <td class="py-3 px-4 text-slate-300">${r.benarPG} / ${r.totalPG}</td>
-            <td class="py-3 px-4 font-bold text-cyan-400">${r.skorPG}</td>
-            <td class="py-3 px-4 text-slate-300">${r.esaiDijawab} / ${r.totalEsai}</td>
-            <td class="py-3 px-4 font-mono-code text-xs text-slate-400">${r.durasi}</td>
-        </tr>
-    `).join('');
-}
-
-// Ekspor CSV per siswa
+// ... existing code ... -->
+// Ekspor CSV per siswa (tanpa menampilkan kunci jawaban)
 function downloadStudentCSV() {
     if (!currentStudent) return;
     const rec = classRecords.find(r => r.id === currentStudent.id);
     if (!rec) return;
 
-    let csv = 'Nomor Soal,Tipe,Pertanyaan,Jawaban Siswa,Kunci / Status\n';
-    activeQuestions.forEach(q => {
+    let csv = 'Nomor Urut,Tipe,Pertanyaan,Jawaban Siswa\n';
+    activeQuestions.forEach((q, idx) => {
         const ans = userAnswers[q.id];
         const cleanQ = `"${q.q.replace(/"/g, '""').replace(/\n/g, ' ')}"`;
         if (q.type === 'PG') {
             const ansText = ans !== undefined ? `"${q.options[ans].replace(/"/g, '""')}"` : '"Tidak Dijawab"';
-            const status = ans === q.answer ? 'BENAR' : 'SALAH';
-            csv += `${q.id},Pilihan Ganda,${cleanQ},${ansText},${status}\n`;
+            csv += `${idx + 1},Pilihan Ganda,${cleanQ},${ansText}\n`;
         } else {
             const ansText = ans ? `"${ans.replace(/"/g, '""').replace(/\n/g, ' ')}"` : '"Tidak Dijawab"';
-            csv += `${q.id},Esai,${cleanQ},${ansText},Menunggu Koreksi Guru\n`;
+            csv += `${idx + 1},Esai,${cleanQ},${ansText}\n`;
         }
     });
 
-    triggerCSVDownload(csv, `Jawaban_${rec.nama.replace(/\s+/g, '_')}_${rec.kelas}.csv`);
+    triggerCSVDownload(csv, `Bukti_Jawaban_${rec.nama.replace(/\s+/g, '_')}_${rec.kelas}.csv`);
 }
-
-// Ekspor CSV Seluruh Kelas (30+ User) siap buka di Excel / Google Sheets
-function exportAllClassCSV() {
-    if (classRecords.length === 0) {
-        showToast('Belum ada data siswa untuk diekspor.');
-        return;
-    }
-
-    let csv = 'Peringkat,Nama Siswa,Kelas,No Absen,Status,PG Benar,Total PG,Nilai PG,Esai Dijawab,Durasi,Ringkasan Jawaban Esai\n';
-    const sorted = [...classRecords].sort((a, b) => b.skorPG - a.skorPG);
-
-    sorted.forEach((r, i) => {
-        const esaiStr = `"${JSON.stringify(r.jawabanEsai).replace(/"/g, '""')}"`;
-        csv += `${i + 1},"${r.nama}",${r.kelas},${r.absen},${r.status},${r.benarPG},${r.totalPG},${r.skorPG},${r.esaiDijawab},${r.durasi},${esaiStr}\n`;
-    });
-
-    triggerCSVDownload(csv, `Rekap_Nilai_KKA_IoT_Kelas_${new Date().toISOString().slice(0,10)}.csv`);
-    showToast('File rekap CSV berhasil diunduh! Siap diunggah ke Google Spreadsheet.');
-}
-
-// Ekspor Bank Soal yang sudah diperbarui
-function exportBankSoalCSV() {
-    let csv = 'No,Tipe,Pertanyaan,Opsi A (Kunci Asli),Opsi B,Opsi C,Opsi D\n';
-    BANK_SOAL.forEach(q => {
-        const cleanQ = `"${q.q.replace(/"/g, '""').replace(/\n/g, ' ')}"`;
-        if (q.type === 'PG') {
-            const opts = q.options.map(o => `"${o.replace(/"/g, '""')}"`).join(',');
-            csv += `${q.id},PG,${cleanQ},${opts}\n`;
-        } else {
-            csv += `${q.id},ESAI,${cleanQ},"","","",""\n`;
-        }
-    });
-    triggerCSVDownload(csv, 'Bank_Soal_KKA_100_Opsi_Seimbang.csv');
-}
-
-function triggerCSVDownload(csvContent, filename) {
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// Simpan URL Webhook Google Apps Script
-function saveWebhookUrl() {
-    const val = document.getElementById('webhookUrlInput').value.trim();
-    customWebhookUrl = val;
-    localStorage.setItem('kka_webhook_url', val);
-    document.getElementById('statWebhookStatus').textContent = val ? 'Terhubung ke Google Sheets ✓' : 'Mode CSV / Lokal';
-    closeModal('spreadsheetModal');
-    showToast(val ? 'URL Google Spreadsheet berhasil disimpan!' : 'URL dihapus, menggunakan mode unduh CSV.');
-}
-
-// Fitur Tes Koneksi Langsung ke Google Spreadsheet
-async function testSpreadsheetConnection() {
-    const url = document.getElementById('webhookUrlInput').value.trim();
-    const resBox = document.getElementById('testConnResult');
-    const btn = document.getElementById('btnTestConn');
-
-    if (!url || !url.includes('script.google.com')) {
-        resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-rose-950/60 border-rose-500/40 text-rose-200';
-        resBox.textContent = '❌ Masukkan URL Google Apps Script yang valid terlebih dahulu (berawalan https://script.google.com/macros/s/... dan berakhiran /exec).';
-        resBox.classList.remove('hidden');
-        return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Menguji...';
-    resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-slate-800 border-slate-600 text-slate-200';
-    resBox.textContent = '⏳ Mengirim data uji coba ke Google Spreadsheet Anda...';
-    resBox.classList.remove('hidden');
-
-    const testPayload = {
-        nama: "[TES KONEKSI] Siswa Uji Coba",
-        kelas: "X-TES",
-        absen: "00",
-        skorPG: 94,
-        jumlahBenar: 75,
-        jumlahSalah: 5,
-        totalPG: 80,
-        esaiTerjawab: "20/20",
-        durasi: "01:00",
-        jawabanPG: { Soal_1: "pinMode(pin, OUTPUT); (Benar)", Soal_2: "Inisialisasi satu kali (Benar)" },
-        jawabanEsai: { Esai_81: "Contoh jawaban esai uji coba koneksi ke Google Sheet." }
-    };
-
-    try {
-        const formData = new URLSearchParams();
-        formData.append('payload', JSON.stringify(testPayload));
-
-        await fetch(url, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formData.toString()
-        });
-
-        // Simpan otomatis jika tes terkirim
-        customWebhookUrl = url;
-        localStorage.setItem('kka_webhook_url', url);
-        document.getElementById('statWebhookStatus').textContent = 'Terhubung ke Google Sheets ✓';
-
-        resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-emerald-950/70 border-emerald-500/40 text-emerald-200';
-        resBox.innerHTML = '✅ <strong>Sinyal terkirim!</strong> Silakan cek Google Spreadsheet Anda sekarang. Seharusnya muncul baris baru bernama <strong>"[TES KONEKSI] Siswa Uji Coba"</strong>.<br><span class="text-amber-300 mt-1 block">Jika belum muncul di Sheet, pastikan di Apps Script Anda sudah memilih <b>Deploy → Manage deployments → Edit (ikon pensil) → New version → Who has access: Anyone</b>.</span>';
-    } catch (e) {
-        resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-rose-950/60 border-rose-500/40 text-rose-200';
-        resBox.textContent = '❌ Gagal menghubungi server Google. Periksa koneksi internet atau pastikan URL berakhiran /exec.';
-    } finally {
-        btn.disabled = false;
-        btn.textContent = '⚡ Tes Koneksi Sekarang';
-    }
-}
-
+// ... existing code ... -->
 function copyAppsScript() {
     const code = document.getElementById('appsScriptCode').textContent;
     const textArea = document.createElement('textarea');
@@ -2242,45 +1600,6 @@ function copyAppsScript() {
     document.execCommand('copy');
     document.body.removeChild(textArea);
     showToast('Kode Google Apps Script berhasil disalin!');
-}
-
-// Pratinjau 100 Soal Seimbang di Modal
-function renderBankSoalPreview() {
-    const keyword = (document.getElementById('searchQuestionInput')?.value || '').toLowerCase();
-    const container = document.getElementById('bankSoalList');
-    if (!container) return;
-
-    const filtered = BANK_SOAL.filter(item =>
-        item.q.toLowerCase().includes(keyword) ||
-        (item.options && item.options.some(o => o.toLowerCase().includes(keyword)))
-    );
-
-    container.innerHTML = filtered.map(item => {
-        if (item.type === 'PG') {
-            const letters = ['A', 'B', 'C', 'D'];
-            const optsHtml = item.options.map((opt, idx) => `
-                <div class="px-3 py-1.5 rounded-lg text-xs flex justify-between items-center ${
-                    idx === item.answer ? 'bg-emerald-950/80 border border-emerald-600/40 text-emerald-200' : 'bg-slate-950 text-slate-300'
-                }">
-                    <span><strong>${letters[idx]}.</strong> ${escapeHtml(opt)}</span>
-                    <span class="text-[10px] text-slate-500 ml-2">${opt.length} kar</span>
-                </div>
-            `).join('');
-
-            return `
-                <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70 space-y-2">
-                    <div class="text-xs font-bold text-cyan-400">Soal PG #${item.id}</div>
-                    <div class="text-slate-100 text-xs sm:text-sm">${escapeHtml(item.q).replace(/\n/g, '<br>')}</div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">${optsHtml}</div>
-                </div>`;
-        } else {
-            return `
-                <div class="p-4 rounded-xl bg-indigo-950/30 border border-indigo-700/40 space-y-1.5">
-                    <div class="text-xs font-bold text-indigo-300">Soal Esai #${item.id}</div>
-                    <div class="text-slate-100 text-xs sm:text-sm">${escapeHtml(item.q).replace(/\n/g, '<br>')}</div>
-                </div>`;
-        }
-    }).join('');
 }
 </script>
 </body>
