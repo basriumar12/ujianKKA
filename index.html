@@ -1502,8 +1502,8 @@ const BANK_SOAL = [
  * STATE MANAJEMEN APLIKASI & MULTI-USER (KAPASITAS 30+ SISWA)
  * ============================================================================
  */
-// TEMPELKAN URL GOOGLE APPS SCRIPT ANDA DI BAWAH INI AGAR OTOMATIS AKTIF UNTUK 30 SISWA:
-const DEFAULT_GSHEET_URL = "";
+// URL GOOGLE APPS SCRIPT SUDAH TERTANAM OTOMATIS UNTUK 30+ SISWA:
+const DEFAULT_GSHEET_URL = "https://script.google.com/macros/s/AKfycbyePEpBWa9HN_LrYzhzyAfiVblfUqnAgud7NOCgvvgYgMMWZ3RJ3plmrxVMC2nTV2Uz_Q/exec";
 
 let activeQuestions = [];
 let currentIdx = 0;
@@ -1513,94 +1513,5 @@ let currentStudent = null;
 let timerInterval = null;
 let secondsElapsed = 0;
 let classRecords = []; // Menyimpan data seluruh siswa (mendukung 30+ user)
-let customWebhookUrl = localStorage.getItem('kka_webhook_url') || DEFAULT_GSHEET_URL;
-
-// Inisialisasi awal
-window.onload = function() {
-    if (customWebhookUrl) {
-        const inputEl = document.getElementById('webhookUrlInput');
-        if (inputEl) inputEl.value = customWebhookUrl;
-        const statEl = document.getElementById('statWebhookStatus');
-        if (statEl) statEl.textContent = 'Terhubung ke Google Sheets ✓';
-    }
-    renderLeaderboard();
-};
+let customWebhookUrl = DEFAULT_GSHEET_URL;
 // ... existing code ... -->
-    // Filter & acak urutan soal untuk setiap siswa agar tidak bisa saling mencontek
-    const pgList = shuffleArray(BANK_SOAL.filter(item => item.type === 'PG'));
-    const essayList = shuffleArray(BANK_SOAL.filter(item => item.type === 'ESSAY'));
-
-    if (mode === 'all') {
-        activeQuestions = [...pgList, ...essayList];
-    } else if (mode === 'pg') {
-        activeQuestions = [...pgList];
-    } else if (mode === 'essay') {
-        activeQuestions = [...essayList];
-    } else if (mode === 'quick') {
-        activeQuestions = [...pgList.slice(0, 20), ...essayList.slice(0, 5)];
-    }
-
-    // Siapkan pengacakan posisi opsi A, B, C, D pada setiap soal PG
-    userAnswers = {};
-    optionShuffleMap = {};
-    activeQuestions.forEach(q => {
-        if (q.type === 'PG') {
-            // Simpan indeks asli [0, 1, 2, 3] yang diacak
-            optionShuffleMap[q.id] = shuffleArray([0, 1, 2, 3]);
-        }
-    });
-// ... existing code ... -->
-    const badge = document.getElementById('questionBadge');
-    const lenInfo = document.getElementById('lengthBalanceInfo');
-
-    if (q.type === 'PG') {
-        badge.textContent = `PILIHAN GANDA • NO. ${currentIdx + 1}`;
-        badge.className = 'px-3 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 text-xs font-bold border border-cyan-500/30';
-        lenInfo.textContent = 'Pilih satu jawaban paling tepat';
-    } else {
-        badge.textContent = `ESAI ANALISIS • NO. ${currentIdx + 1}`;
-        badge.className = 'px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30';
-        lenInfo.textContent = 'Uraikan jawaban secara jelas & sistematis';
-    }
-// ... existing code ... -->
-    const scorePG = totalPG > 0 ? Math.round((correct / totalPG) * 100) : 0;
-    document.getElementById('liveAnsweredStat').textContent = `${answered}/${activeQuestions.length}`;
-    document.getElementById('answeredCount').textContent = `${answered}/${activeQuestions.length} Terjawab`;
-
-    // Sinkronkan ke record kelas aktif
-// ... existing code ... -->
-// Ekspor CSV per siswa (tanpa menampilkan kunci jawaban)
-function downloadStudentCSV() {
-    if (!currentStudent) return;
-    const rec = classRecords.find(r => r.id === currentStudent.id);
-    if (!rec) return;
-
-    let csv = 'Nomor Urut,Tipe,Pertanyaan,Jawaban Siswa\n';
-    activeQuestions.forEach((q, idx) => {
-        const ans = userAnswers[q.id];
-        const cleanQ = `"${q.q.replace(/"/g, '""').replace(/\n/g, ' ')}"`;
-        if (q.type === 'PG') {
-            const ansText = ans !== undefined ? `"${q.options[ans].replace(/"/g, '""')}"` : '"Tidak Dijawab"';
-            csv += `${idx + 1},Pilihan Ganda,${cleanQ},${ansText}\n`;
-        } else {
-            const ansText = ans ? `"${ans.replace(/"/g, '""').replace(/\n/g, ' ')}"` : '"Tidak Dijawab"';
-            csv += `${idx + 1},Esai,${cleanQ},${ansText}\n`;
-        }
-    });
-
-    triggerCSVDownload(csv, `Bukti_Jawaban_${rec.nama.replace(/\s+/g, '_')}_${rec.kelas}.csv`);
-}
-// ... existing code ... -->
-function copyAppsScript() {
-    const code = document.getElementById('appsScriptCode').textContent;
-    const textArea = document.createElement('textarea');
-    textArea.value = code;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-    showToast('Kode Google Apps Script berhasil disalin!');
-}
-</script>
-</body>
-</html>
