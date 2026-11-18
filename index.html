@@ -1514,4 +1514,660 @@ let timerInterval = null;
 let secondsElapsed = 0;
 let classRecords = []; // Menyimpan data seluruh siswa (mendukung 30+ user)
 let customWebhookUrl = DEFAULT_GSHEET_URL;
-// ... existing code ... -->
+
+try {
+    const savedUrl = localStorage.getItem('kka_gsheet_url');
+    if (savedUrl && savedUrl.startsWith('http')) {
+        customWebhookUrl = savedUrl;
+    } else {
+        localStorage.setItem('kka_gsheet_url', DEFAULT_GSHEET_URL);
+    }
+    const savedRecords = localStorage.getItem('kka_class_records');
+    if (savedRecords) classRecords = JSON.parse(savedRecords);
+} catch (e) {
+    console.warn("Penyimpanan lokal tidak tersedia, menggunakan memori sesi.");
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const urlInput = document.getElementById('webhookUrlInput');
+    if (urlInput && customWebhookUrl) {
+        urlInput.value = customWebhookUrl;
+    }
+});
+
+/**
+ * ============================================================================
+ * NAVIGASI VIEW & MODAL
+ * ============================================================================
+ */
+function switchView(viewName) {
+    document.getElementById('viewLobby').classList.add('hidden');
+    document.getElementById('viewGame').classList.add('hidden');
+    document.getElementById('viewResult').classList.add('hidden');
+    document.getElementById('viewTeacher').classList.add('hidden');
+
+    if (viewName === 'lobby') {
+        document.getElementById('viewLobby').classList.remove('hidden');
+    } else if (viewName === 'game') {
+        document.getElementById('viewGame').classList.remove('hidden');
+    } else if (viewName === 'result') {
+        document.getElementById('viewResult').classList.remove('hidden');
+    } else if (viewName === 'teacher') {
+        document.getElementById('viewTeacher').classList.remove('hidden');
+        renderTeacherDashboard();
+    }
+}
+
+function openModal(id) {
+    if (id === 'spreadsheetModal') {
+        document.getElementById('webhookUrlInput').value = customWebhookUrl;
+    }
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    setTimeout(() => {
+        t.classList.add('hidden');
+    }, 3500);
+}
+
+/**
+ * ============================================================================
+ * LOGIKA MULAI KUIS & PENGACAKAN OPSI SEIMBANG
+ * ============================================================================
+ */
+function shuffleArray(arr) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+}
+
+function startGame(event) {
+    event.preventDefault();
+    const name = document.getElementById('studentName').value.trim();
+    const cls = document.getElementById('studentClass').value;
+    const abs = document.getElementById('studentAbsent').value;
+    const mode = document.getElementById('quizMode').value;
+
+    if (!name) return;
+
+    currentStudent = {
+        id: 'USR-' + Date.now(),
+        name,
+        kelas: cls,
+        absen: abs,
+        mode,
+        startTime: new Date().toISOString()
+    };
+
+    // Pilih & acak urutan soal berdasarkan mode
+    const pgList = BANK_SOAL.filter(q => q.type === 'PG');
+    const essayList = BANK_SOAL.filter(q => q.type === 'ESSAY');
+
+    if (mode === 'all') {
+        activeQuestions = [...shuffleArray(pgList), ...shuffleArray(essayList)];
+    } else if (mode === 'pg') {
+        activeQuestions = shuffleArray(pgList);
+    } else if (mode === 'essay') {
+        activeQuestions = shuffleArray(essayList);
+    } else {
+        activeQuestions = [...shuffleArray(pgList).slice(0, 20), ...shuffleArray(essayList).slice(0, 5)];
+    }
+
+    // Reset state pengerjaan
+    currentIdx = 0;
+    userAnswers = {};
+    optionShuffleMap = {};
+    secondsElapsed = 0;
+
+    // Acak posisi huruf (A/B/C/D) untuk setiap soal PG agar tidak ada pola posisi kunci
+    activeQuestions.forEach(q => {
+        if (q.type === 'PG') {
+            optionShuffleMap[q.id] = shuffleArray([0, 1, 2, 3]);
+        }
+    });
+
+    // Update UI Header Siswa
+    document.getElementById('avatarInitial').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('displayStudentName').textContent = name;
+    document.getElementById('displayStudentMeta').textContent = `Kelas ${cls} • Absen ${abs}`;
+
+    // Jalankan Timer
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        secondsElapsed++;
+        document.getElementById('timerDisplay').textContent = formatTime(secondsElapsed);
+    }, 1000);
+
+    buildNavGrid();
+    renderQuestion();
+    switchView('game');
+    showToast(`Selamat mengerjakan, ${name}!`);
+}
+
+function formatTime(sec) {
+    const m = String(Math.floor(sec / 60)).padStart(2, '0');
+    const s = String(sec % 60).padStart(2, '0');
+    return `${m}:${s}`;
+}
+
+/**
+ * ============================================================================
+ * RENDER SOAL & INTERAKSI JAWABAN
+ * ============================================================================
+ */
+function formatQuestionHTML(rawText) {
+    // Memisahkan teks biasa dan blok kode ```cpp ... ```
+    const parts = rawText.split(/```cpp\n([\s\S]*?)```/g);
+    let html = '';
+    for (let i = 0; i < parts.length; i++) {
+        if (i % 2 === 0) {
+            const cleaned = parts[i].trim();
+            if (cleaned) {
+                html += `<p class="whitespace-pre-line">${escapeHTML(cleaned)}</p>`;
+            }
+        } else {
+            html += `<pre class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-cyan-300 font-mono-code text-xs sm:text-sm overflow-x-auto leading-relaxed">${escapeHTML(parts[i].trim())}</pre>`;
+        }
+    }
+    return html;
+}
+
+function escapeHTML(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function renderQuestion() {
+    const q = activeQuestions[currentIdx];
+    const total = activeQuestions.length;
+
+    // Update Header Progress
+    document.getElementById('progressCounter').textContent = `${currentIdx + 1} / ${total}`;
+    document.getElementById('progressBar').style.width = `${((currentIdx + 1) / total) * 100}%`;
+
+    const badge = document.getElementById('questionBadge');
+    const lengthInfo = document.getElementById('lengthBalanceInfo');
+    const optContainer = document.getElementById('optionsContainer');
+    const essayContainer = document.getElementById('essayContainer');
+
+    document.getElementById('questionContent').innerHTML = formatQuestionHTML(q.q);
+
+    if (q.type === 'PG') {
+        badge.textContent = `PILIHAN GANDA #${currentIdx + 1} (Bank #${q.id})`;
+        badge.className = 'px-3 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 text-xs font-bold border border-cyan-500/30';
+        lengthInfo.textContent = 'Opsi Teracak Otomatis';
+
+        optContainer.classList.remove('hidden');
+        essayContainer.classList.add('hidden');
+        optContainer.innerHTML = '';
+
+        const order = optionShuffleMap[q.id] || [0, 1, 2, 3];
+        const letters = ['A', 'B', 'C', 'D'];
+        const selectedOrigIdx = userAnswers[q.id];
+
+        order.forEach((origIdx, visualPos) => {
+            const optText = q.options[origIdx];
+            const isSelected = selectedOrigIdx === origIdx;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.onclick = () => selectPGOption(q.id, origIdx);
+            btn.className = `option-card w-full text-left p-4 rounded-xl border flex items-start gap-3.5 ${
+                isSelected
+                    ? 'bg-cyan-600/20 border-cyan-400 text-white shadow-lg shadow-cyan-500/10'
+                    : 'bg-slate-950/80 border-slate-800 hover:border-slate-600 text-slate-200'
+            }`;
+
+            btn.innerHTML = `
+                <span class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-sm ${
+                    isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-300'
+                }">${letters[visualPos]}</span>
+                <span class="text-sm sm:text-base leading-snug pt-1">${escapeHTML(optText)}</span>
+            `;
+            optContainer.appendChild(btn);
+        });
+    } else {
+        badge.textContent = `SOAL ESAI ANALISIS #${currentIdx + 1} (Bank #${q.id})`;
+        badge.className = 'px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30';
+        lengthInfo.textContent = 'Penilaian Uraian & Logika';
+
+        optContainer.classList.add('hidden');
+        essayContainer.classList.remove('hidden');
+
+        const essayInput = document.getElementById('essayInput');
+        essayInput.value = userAnswers[q.id] || '';
+        updateEssayWordCount(essayInput.value);
+
+        essayInput.oninput = (e) => {
+            userAnswers[q.id] = e.target.value;
+            updateEssayWordCount(e.target.value);
+            updateStatsAndNav();
+        };
+    }
+
+    // Atur tombol navigasi
+    document.getElementById('btnPrev').disabled = currentIdx === 0;
+    if (currentIdx === total - 1) {
+        document.getElementById('btnNext').classList.add('hidden');
+        document.getElementById('btnSubmitQuiz').classList.remove('hidden');
+    } else {
+        document.getElementById('btnNext').classList.remove('hidden');
+        document.getElementById('btnSubmitQuiz').classList.add('hidden');
+    }
+
+    updateStatsAndNav();
+}
+
+function updateEssayWordCount(text) {
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    document.getElementById('essayWordCount').textContent = `${words} kata`;
+}
+
+function selectPGOption(questionId, origOptionIndex) {
+    userAnswers[questionId] = origOptionIndex;
+    renderQuestion();
+}
+
+function prevQuestion() {
+    if (currentIdx > 0) {
+        currentIdx--;
+        renderQuestion();
+    }
+}
+
+function nextQuestion() {
+    if (currentIdx < activeQuestions.length - 1) {
+        currentIdx++;
+        renderQuestion();
+    }
+}
+
+function jumpToQuestion(index) {
+    currentIdx = index;
+    renderQuestion();
+}
+
+function toggleQuestionDrawer() {
+    const nav = document.getElementById('questionNavigator');
+    nav.classList.toggle('hidden');
+}
+
+function buildNavGrid() {
+    const grid = document.getElementById('navGrid');
+    grid.innerHTML = '';
+    activeQuestions.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = `navBtn_${idx}`;
+        btn.textContent = idx + 1;
+        btn.onclick = () => jumpToQuestion(idx);
+        btn.className = 'h-9 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
+        grid.appendChild(btn);
+    });
+}
+
+function updateStatsAndNav() {
+    let answered = 0;
+
+    activeQuestions.forEach((q, idx) => {
+        const ans = userAnswers[q.id];
+        const isAnswered = q.type === 'PG' ? ans !== undefined : (ans && ans.trim().length > 0);
+        if (isAnswered) answered++;
+
+        const navBtn = document.getElementById(`navBtn_${idx}`);
+        if (navBtn) {
+            if (idx === currentIdx) {
+                navBtn.className = 'h-9 rounded-lg text-xs font-bold bg-cyan-500 text-slate-950 ring-2 ring-cyan-300';
+            } else if (isAnswered) {
+                navBtn.className = 'h-9 rounded-lg text-xs font-bold bg-emerald-600/80 text-white';
+            } else {
+                navBtn.className = 'h-9 rounded-lg text-xs font-bold bg-slate-800 text-slate-400 hover:bg-slate-700';
+            }
+        }
+    });
+
+    document.getElementById('liveAnsweredStat').textContent = `${answered}/${activeQuestions.length}`;
+    document.getElementById('answeredCount').textContent = `${answered}/${activeQuestions.length} Terjawab`;
+}
+
+/**
+ * ============================================================================
+ * PENYELESAIAN KUIS & PENGIRIMAN DATA KE GOOGLE SPREADSHEET
+ * ============================================================================
+ */
+function confirmSubmitQuiz() {
+    let answered = 0;
+    activeQuestions.forEach(q => {
+        const ans = userAnswers[q.id];
+        if (q.type === 'PG' ? ans !== undefined : (ans && ans.trim().length > 0)) answered++;
+    });
+
+    const unanswered = activeQuestions.length - answered;
+    document.getElementById('confirmSummaryText').textContent =
+        unanswered > 0
+            ? `Anda baru menjawab ${answered} dari ${activeQuestions.length} soal (${unanswered} soal masih kosong). Yakin ingin mengirim sekarang?`
+            : `Luar biasa! Seluruh ${activeQuestions.length} soal telah dijawab. Kirim hasil ke Google Spreadsheet sekarang?`;
+
+    openModal('confirmModal');
+}
+
+async function finalizeSubmission() {
+    closeModal('confirmModal');
+    if (timerInterval) clearInterval(timerInterval);
+
+    let pgTotal = 0;
+    let pgCorrect = 0;
+    let essayTotal = 0;
+    let essayAnswered = 0;
+
+    const detailPG = {};
+    const detailEsai = {};
+    const letters = ['A', 'B', 'C', 'D'];
+
+    activeQuestions.forEach(q => {
+        if (q.type === 'PG') {
+            pgTotal++;
+            const ans = userAnswers[q.id];
+            const isCorrect = ans === q.answer;
+            if (isCorrect) pgCorrect++;
+            detailPG[`PG_${q.id}`] = ans !== undefined ? `${letters[ans]} (${isCorrect ? 'Benar' : 'Salah'})` : 'Kosong';
+        } else {
+            essayTotal++;
+            const ans = (userAnswers[q.id] || '').trim();
+            if (ans.length > 0) essayAnswered++;
+            detailEsai[`Esai_${q.id}`] = ans;
+        }
+    });
+
+    const pgWrong = pgTotal - pgCorrect;
+    const scorePG = pgTotal > 0 ? Math.round((pgCorrect / pgTotal) * 100) : 0;
+    const durationStr = formatTime(secondsElapsed);
+
+    const record = {
+        timestamp: new Date().toLocaleString('id-ID'),
+        nama: currentStudent.name,
+        kelas: currentStudent.kelas,
+        absen: currentStudent.absen,
+        skorPG: scorePG,
+        jumlahBenar: pgCorrect,
+        jumlahSalah: pgWrong,
+        totalPG: pgTotal,
+        benarPG: `${pgCorrect}/${pgTotal}`,
+        esaiTerjawab: `${essayAnswered}/${essayTotal}`,
+        durasi: durationStr,
+        jawabanPG: detailPG,
+        jawabanEsai: detailEsai
+    };
+
+    // Simpan ke daftar rekap kelas lokal
+    classRecords.unshift(record);
+    try {
+        localStorage.setItem('kka_class_records', JSON.stringify(classRecords));
+    } catch (e) {}
+
+    // Tampilkan layar hasil
+    document.getElementById('resultSubtitle').textContent = `Peserta: ${record.nama} (${record.kelas} • Absen ${record.absen})`;
+    document.getElementById('resScorePG').textContent = scorePG;
+    document.getElementById('resCorrectPG').textContent = `${pgCorrect}/${pgTotal}`;
+    document.getElementById('resEssayCount').textContent = `${essayAnswered}/${essayTotal}`;
+    document.getElementById('resDuration').textContent = durationStr;
+
+    switchView('result');
+
+    // Kirim ke Google Spreadsheet jika URL Web App sudah diatur
+    const statusBox = document.getElementById('syncStatusBox');
+    const statusText = document.getElementById('syncStatusText');
+
+    if (customWebhookUrl && customWebhookUrl.startsWith('http')) {
+        statusText.textContent = 'Mengirim jawaban & skor otomatis ke Google Spreadsheet...';
+        try {
+            // Gunakan FormData / URLSearchParams agar diterima mulus oleh e.parameter.payload di Google Apps Script tanpa hambatan CORS
+            const formBody = new URLSearchParams();
+            formBody.append('payload', JSON.stringify(record));
+
+            await fetch(customWebhookUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: formBody.toString()
+            });
+
+            statusBox.className = 'mt-5 p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-sm flex items-center justify-center gap-2';
+            statusBox.innerHTML = `<span class="text-emerald-400 font-bold">✓ Berhasil Terkirim ke Google Spreadsheet!</span> <span class="text-slate-300">(Skor PG: ${scorePG} • Benar: ${pgCorrect}/${pgTotal} & Jawaban Esai tercatat otomatis)</span>`;
+        } catch (err) {
+            statusBox.className = 'mt-5 p-4 rounded-xl bg-rose-950/60 border border-rose-500/40 text-sm flex items-center justify-center gap-2';
+            statusBox.innerHTML = `<span class="text-rose-400 font-bold">⚠ Gagal kirim otomatis ke jaringan.</span> <span class="text-slate-300">Silakan unduh file CSV di bawah sebagai cadangan.</span>`;
+        }
+    } else {
+        statusBox.className = 'mt-5 p-4 rounded-xl bg-amber-950/50 border border-amber-500/30 text-sm flex items-center justify-center gap-2';
+        statusBox.innerHTML = `<span class="text-amber-300">ⓘ Data tersimpan di Rekap Kelas lokal. Klik <strong>"Koneksi Spreadsheet"</strong> di atas jika ingin mengirim langsung ke Google Sheets.</span>`;
+    }
+}
+
+function resetToLobby() {
+    document.getElementById('loginForm').reset();
+    switchView('lobby');
+}
+
+/**
+ * ============================================================================
+ * FITUR SPREADSHEET, EKSPOR CSV & SIMULASI 30+ SISWA
+ * ============================================================================
+ */
+function saveWebhookUrl() {
+    const val = document.getElementById('webhookUrlInput').value.trim();
+    customWebhookUrl = val;
+    try {
+        localStorage.setItem('kka_gsheet_url', val);
+    } catch (e) {}
+    closeModal('spreadsheetModal');
+    showToast(val ? 'URL Google Spreadsheet berhasil disimpan!' : 'URL Spreadsheet dikosongkan.');
+}
+
+async function testSpreadsheetConnection() {
+    const url = document.getElementById('webhookUrlInput').value.trim();
+    const resBox = document.getElementById('testConnResult');
+    const btn = document.getElementById('btnTestConn');
+
+    if (!url || !url.startsWith('http')) {
+        resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-rose-950/60 border-rose-500/40 text-rose-300';
+        resBox.innerHTML = '⚠ Masukkan URL Web App Google Apps Script yang berawalan <strong>https://script.google.com/.../exec</strong> terlebih dahulu.';
+        resBox.classList.remove('hidden');
+        return;
+    }
+
+    // Simpan sekalian URL-nya
+    customWebhookUrl = url;
+    try { localStorage.setItem('kka_gsheet_url', url); } catch (e) {}
+
+    btn.disabled = true;
+    btn.textContent = 'Menguji...';
+    resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-slate-950 border-cyan-500/40 text-cyan-300';
+    resBox.innerHTML = '⏳ Mengirim paket data uji coba ke Google Spreadsheet Anda...';
+    resBox.classList.remove('hidden');
+
+    const testRecord = {
+        timestamp: new Date().toLocaleString('id-ID'),
+        nama: '[TES KONEKSI] Siswa Uji Coba',
+        kelas: 'X-TEST',
+        absen: '00',
+        skorPG: 100,
+        jumlahBenar: 80,
+        jumlahSalah: 0,
+        totalPG: 80,
+        benarPG: '80/80',
+        esaiTerjawab: '20/20',
+        durasi: '00:05',
+        jawabanPG: { PG_1: 'A (Benar)', PG_2: 'B (Benar)' },
+        jawabanEsai: { Esai_81: 'Ini adalah contoh jawaban esai dari tombol Tes Koneksi.' }
+    };
+
+    try {
+        const formBody = new URLSearchParams();
+        formBody.append('payload', JSON.stringify(testRecord));
+
+        await fetch(url, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formBody.toString()
+        });
+
+        resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-emerald-950/60 border-emerald-500/40 text-emerald-300 leading-relaxed';
+        resBox.innerHTML = '<strong>✓ Sinyal Terkirim!</strong> Silakan cek tab Google Spreadsheet Anda sekarang—seharusnya muncul baris baru bernama <strong>"[TES KONEKSI] Siswa Uji Coba"</strong>.<br><span class="text-slate-400">Jika belum muncul: pastikan di Apps Script Anda sudah klik <em>Deploy → Manage deployments → Edit (ikon pensil) → Version: New version → Deploy</em> dengan akses <em>Anyone</em>.</span>';
+    } catch (err) {
+        resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-rose-950/60 border-rose-500/40 text-rose-300';
+        resBox.innerHTML = '❌ Gagal menghubungi server Google. Periksa koneksi internet atau pastikan URL berakhir dengan <strong>/exec</strong>.';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '⚡ Tes Koneksi Sekarang';
+    }
+}
+
+function copyAppsScript() {
+    const code = document.getElementById('appsScriptCode').textContent;
+    const temp = document.createElement('textarea');
+    temp.value = code;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand('copy');
+    document.body.removeChild(temp);
+    showToast('Kode Google Apps Script berhasil disalin!');
+}
+
+function downloadStudentCSV() {
+    if (classRecords.length === 0) return;
+    const rec = classRecords[0];
+    let csv = 'Waktu,Nama Siswa,Kelas,No Absen,Nilai PG,PG Benar,Esai Dijawab,Durasi\n';
+    csv += `"${rec.timestamp}","${rec.nama}","${rec.kelas}","${rec.absen}",${rec.skorPG},"${rec.benarPG}","${rec.esaiTerjawab}","${rec.durasi}"\n\n`;
+    csv += 'Nomor Soal,Jawaban Siswa\n';
+
+    Object.entries(rec.jawabanPG).forEach(([k, v]) => {
+        // Hilangkan status (Benar/Salah) di file unduhan siswa agar tidak disebarkan ke teman
+        const cleanChoice = String(v).split(' ')[0];
+        csv += `"${k}","${cleanChoice}"\n`;
+    });
+    Object.entries(rec.jawabanEsai).forEach(([k, v]) => {
+        csv += `"${k}","${(v || '').replace(/"/g, '""')}"\n`;
+    });
+
+    triggerCSVDownload(csv, `Hasil_Kuis_${rec.nama.replace(/\s+/g, '_')}.csv`);
+}
+
+function exportAllClassCSV() {
+    if (classRecords.length === 0) {
+        showToast('Belum ada data siswa yang masuk.');
+        return;
+    }
+    let csv = 'No,Waktu,Nama Siswa,Kelas,No Absen,Nilai PG,PG Benar,Esai Dijawab,Durasi,Ringkasan Esai\n';
+    classRecords.forEach((r, i) => {
+        const esaiSummary = Object.entries(r.jawabanEsai || {})
+            .filter(([_, val]) => val && val.trim())
+            .map(([k, val]) => `${k}: ${val}`)
+            .join(' | ')
+            .replace(/"/g, '""');
+        csv += `${i + 1},"${r.timestamp}","${r.nama}","${r.kelas}","${r.absen}",${r.skorPG},"${r.benarPG}","${r.esaiTerjawab}","${r.durasi}","${esaiSummary}"\n`;
+    });
+
+    triggerCSVDownload(csv, `Rekap_Kelas_KKA_IoT_${new Date().toISOString().slice(0, 10)}.csv`);
+}
+
+function triggerCSVDownload(csvContent, filename) {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function simulate30Students() {
+    const sampleNames = [
+        'Aditya Pratama', 'Aisyah Putri', 'Bagas Saputra', 'Bella Anggraini', 'Cahya Ramadhan',
+        'Citra Lestari', 'Dimas Nugroho', 'Dina Permata', 'Eko Prasetyo', 'Fani Rahmawati',
+        'Galih Kurniawan', 'Gita Savitri', 'Hendra Wijaya', 'Indah Kusuma', 'Irfan Hakim',
+        'Kartika Sari', 'Lukman Nulhakim', 'Maya Safitri', 'Nanda Maulana', 'Nisa Sabyan',
+        'Oki Setiawan', 'Putri Ayu', 'Rafi Ahmad', 'Rina Nose', 'Rizky Febian',
+        'Salsa Bila', 'Taufik Hidayat', 'Tiara Andini', 'Vino Bastian', 'Zahra Amalia'
+    ];
+
+    sampleNames.forEach((nama, idx) => {
+        const benar = Math.floor(Math.random() * 26) + 54; // 54 - 80 benar
+        const skor = Math.round((benar / 80) * 100);
+        const esai = Math.floor(Math.random() * 5) + 16; // 16 - 20 esai
+        const menit = String(Math.floor(Math.random() * 25) + 20).padStart(2, '0');
+        const detik = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+
+        classRecords.push({
+            timestamp: new Date().toLocaleString('id-ID'),
+            nama: nama,
+            kelas: `X-${(idx % 6) + 1}`,
+            absen: String(idx + 1).padStart(2, '0'),
+            skorPG: skor,
+            benarPG: `${benar}/80`,
+            esaiTerjawab: `${esai}/20`,
+            durasi: `${menit}:${detik}`,
+            jawabanPG: {},
+            jawabanEsai: { Esai_81: 'Contoh jawaban analisis simulasi siswa.' }
+        });
+    });
+
+    try {
+        localStorage.setItem('kka_class_records', JSON.stringify(classRecords));
+    } catch (e) {}
+
+    renderTeacherDashboard();
+    showToast('30 siswa simulasi berhasil ditambahkan ke arena!');
+}
+
+function renderTeacherDashboard() {
+    const tbody = document.getElementById('leaderboardTableBody');
+    tbody.innerHTML = '';
+
+    document.getElementById('statTotalUsers').textContent = `${classRecords.length} Siswa`;
+    document.getElementById('statWebhookStatus').textContent = customWebhookUrl ? 'Terhubung ke Google Sheets' : 'Mode CSV Lokal';
+
+    if (classRecords.length === 0) {
+        document.getElementById('statAvgScore').textContent = '0';
+        document.getElementById('statMaxScore').textContent = '0';
+        tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">Belum ada siswa yang mengirimkan jawaban. Klik "+ Simulasikan 30 Siswa Masuk" untuk uji coba kapasitas kelas.</td></tr>`;
+        return;
+    }
+
+    const sorted = [...classRecords].sort((a, b) => b.skorPG - a.skorPG);
+    const totalScore = sorted.reduce((acc, cur) => acc + cur.skorPG, 0);
+    document.getElementById('statAvgScore').textContent = Math.round(totalScore / sorted.length);
+    document.getElementById('statMaxScore').textContent = sorted[0].skorPG;
+
+    sorted.forEach((r, i) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition';
+        tr.innerHTML = `
+            <td class="py-3 px-4 font-bold text-slate-400">#${i + 1}</td>
+            <td class="py-3 px-4 font-semibold text-white">${escapeHTML(r.nama)}</td>
+            <td class="py-3 px-4 text-slate-300">${r.kelas} • Absen ${r.absen}</td>
+            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs">Selesai</span></td>
+            <td class="py-3 px-4 text-slate-300">${r.benarPG}</td>
+            <td class="py-3 px-4 font-bold text-cyan-400">${r.skorPG}</td>
+            <td class="py-3 px-4 text-indigo-300">${r.esaiTerjawab}</td>
+            <td class="py-3 px-4 font-mono-code text-xs text-amber-300">${r.durasi}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+</script>
+</body>
+</html>
