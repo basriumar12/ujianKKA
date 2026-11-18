@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena Kuis KKA & IoT - SMA Kelas X (100 Soal)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .font-mono-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-card:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.15);
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(14, 165, 233, 0.6); }
+        }
+        .glow-active {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
+
+    <!-- Navbar -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight text-white leading-tight">KKA & IoT Arena</h1>
+                    <p class="text-xs text-cyan-400 font-medium">SMA Kelas X • 80 PG + 20 Esai (Opsi Seimbang)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <button onclick="openModal('spreadsheetModal')" class="px-3 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs sm:text-sm font-medium flex items-center gap-1.5 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span class="hidden sm:inline">Koneksi Spreadsheet</span>
+                    <span class="sm:hidden">Sheets</span>
+                </button>
+                <button onclick="switchView('teacher')" id="btnTeacherMode" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs sm:text-sm font-medium flex items-center gap-1.5 transition">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    <span>Pantau Kelas (30+ User)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- VIEW 1: LOBBY / LOGIN SISWA -->
+        <section id="viewLobby" class="max-w-xl mx-auto mt-6 sm:mt-12">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+                <div class="text-center mb-6">
+                    <span class="inline-block px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold tracking-wider uppercase mb-2 border border-cyan-500/20">
+                        Evaluasi Interaktif Tema 4
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Masuk Arena Kuis</h2>
+                    <p class="text-slate-400 text-sm mt-2">
+                        80 Soal Pilihan Ganda (Opsi Diperbarui & Seimbang) + 20 Soal Esai Analisis. Mendukung 30+ peserta bersamaan.
+                    </p>
+                </div>
+
+                <form id="loginForm" onsubmit="startGame(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Nama Lengkap Siswa</label>
+                        <input type="text" id="studentName" required placeholder="Contoh: Ahmad Fauzan"
+                            class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Kelas</label>
+                            <select id="studentClass" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-cyan-500">
+                                <option value="X-1">Kelas X-1</option>
+                                <option value="X-2">Kelas X-2</option>
+                                <option value="X-3">Kelas X-3</option>
+                                <option value="X-4">Kelas X-4</option>
+                                <option value="X-5">Kelas X-5</option>
+                                <option value="X-6">Kelas X-6</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">No. Absen</label>
+                            <input type="number" id="studentAbsent" required min="1" max="50" placeholder="01 - 40"
+                                class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Mode Pengerjaan</label>
+                        <select id="quizMode" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:border-cyan-500">
+                            <option value="all">Paket Lengkap (80 PG + 20 Esai = 100 Soal)</option>
+                            <option value="pg">Hanya Pilihan Ganda (80 Soal)</option>
+                            <option value="essay">Hanya Esai Analisis (20 Soal)</option>
+                            <option value="quick">Latihan Cepat (20 PG + 5 Esai Acak)</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base shadow-lg shadow-cyan-500/25 transition transform active:scale-[0.99]">
+                            Mulai Mengerjakan Sekarang →
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-6 pt-5 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Server Kelas Siap (Kapasitas 30+ Siswa)
+                    </span>
+                    <button onclick="openModal('bankSoalModal')" class="text-cyan-400 hover:underline font-medium">
+                        Lihat Daftar 100 Soal Seimbang
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: ARENA GAME KUIS -->
+        <section id="viewGame" class="hidden">
+            <!-- Top Bar Status -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white" id="avatarInitial">
+                        S
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-sm sm:text-base" id="displayStudentName">Nama Siswa</div>
+                        <div class="text-xs text-slate-400" id="displayStudentMeta">Kelas X-1 • Absen 01</div>
+                    </div>
+                </div>
+
+                <!-- Progress & Timer -->
+                <div class="flex items-center gap-4 sm:gap-6">
+                    <div class="text-center">
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400">Soal</div>
+                        <div class="font-bold text-cyan-400 text-base sm:text-lg" id="progressCounter">1 / 100</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400">Skor PG</div>
+                        <div class="font-bold text-emerald-400 text-base sm:text-lg" id="liveScore">0</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400">Waktu</div>
+                        <div class="font-mono-code font-bold text-amber-400 text-base sm:text-lg" id="timerDisplay">00:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden mb-6">
+                <div id="progressBar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300" style="width: 1%"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Kolom Soal Utama (3 Kolom) -->
+                <div class="lg:col-span-3 space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+                        <div class="flex items-center justify-between gap-2 mb-4">
+                            <span id="questionBadge" class="px-3 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 text-xs font-bold border border-cyan-500/30">
+                                PILIHAN GANDA #1
+                            </span>
+                            <span class="text-xs text-slate-400" id="lengthBalanceInfo">
+                                Anti-Tebak Panjang Aktif
+                            </span>
+                        </div>
+
+                        <!-- Teks Pertanyaan & Blok Kode -->
+                        <div id="questionContent" class="text-base sm:text-lg text-slate-100 leading-relaxed space-y-4">
+                            <!-- Diisi via JS -->
+                        </div>
+
+                        <!-- Area Opsi Pilihan Ganda -->
+                        <div id="optionsContainer" class="mt-6 grid grid-cols-1 gap-3.5">
+                            <!-- Diisi via JS -->
+                        </div>
+
+                        <!-- Area Jawaban Esai -->
+                        <div id="essayContainer" class="hidden mt-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-cyan-300 mb-2">
+                                    Tuliskan Jawaban Analisis & Penjelasan Lengkap Anda:
+                                </label>
+                                <textarea id="essayInput" rows="6" placeholder="Ketik jawaban esai Anda di sini secara sistematis..."
+                                    class="w-full p-4 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-sm sm:text-base"></textarea>
+                            </div>
+                            <div class="flex justify-between items-center text-xs text-slate-400">
+                                <span id="essayWordCount">0 kata</span>
+                                <span>Jawaban otomatis tersimpan saat berpindah soal</span>
+                            </div>
+                        </div>
+
+                        <!-- Navigasi Bawah -->
+                        <div class="mt-8 pt-6 border-t border-slate-800 flex items-center justify-between gap-3">
+                            <button onclick="prevQuestion()" id="btnPrev" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 font-medium text-sm transition">
+                                ← Sebelumnya
+                            </button>
+
+                            <div class="flex items-center gap-2">
+                                <button onclick="toggleQuestionDrawer()" class="lg:hidden px-3 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-sm">
+                                    Nomor Soal
+                                </button>
+                                <button onclick="nextQuestion()" id="btnNext" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm transition">
+                                    Selanjutnya →
+                                </button>
+                                <button onclick="confirmSubmitQuiz()" id="btnSubmitQuiz" class="hidden px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/20 transition">
+                                    Kirim ke Spreadsheet ✓
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Navigasi Nomor Soal (1 Kolom) -->
+                <div id="questionNavigator" class="hidden lg:block bg-slate-900 border border-slate-800 rounded-2xl p-4 h-fit max-h-[75vh] overflow-y-auto">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-sm text-slate-200">Navigasi Soal</h3>
+                        <span class="text-xs text-slate-400" id="answeredCount">0 Terjawab</span>
+                    </div>
+                    <div class="grid grid-cols-5 gap-1.5" id="navGrid">
+                        <!-- Grid nomor soal -->
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 space-y-1.5 text-xs text-slate-400">
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-cyan-600 inline-block"></span> Sedang dibuka</div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-emerald-600/80 inline-block"></span> Sudah dijawab</div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-slate-800 inline-block"></span> Belum dijawab</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: HASIL & PENGIRIMAN SPREADSHEET -->
+        <section id="viewResult" class="hidden max-w-3xl mx-auto mt-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl text-center">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/30">
+                    <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Kuis Selesai!</h2>
+                <p class="text-slate-400 text-sm mt-1" id="resultSubtitle">Terima kasih telah menyelesaikan evaluasi KKA & IoT.</p>
+
+                <!-- Status Pengiriman Spreadsheet -->
+                <div id="syncStatusBox" class="mt-5 p-4 rounded-xl bg-slate-950 border border-slate-800 text-sm flex items-center justify-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+                    <span id="syncStatusText" class="text-slate-300">Menyimpan data jawaban ke rekap kelas & spreadsheet...</span>
+                </div>
+
+                <!-- Ringkasan Nilai -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <div class="text-xs text-slate-400">Nilai PG</div>
+                        <div class="text-2xl font-extrabold text-cyan-400 mt-1" id="resScorePG">0</div>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <div class="text-xs text-slate-400">PG Benar</div>
+                        <div class="text-2xl font-extrabold text-emerald-400 mt-1" id="resCorrectPG">0/80</div>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <div class="text-xs text-slate-400">Esai Dijawab</div>
+                        <div class="text-2xl font-extrabold text-indigo-400 mt-1" id="resEssayCount">0/20</div>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <div class="text-xs text-slate-400">Durasi</div>
+                        <div class="text-2xl font-extrabold text-amber-400 mt-1" id="resDuration">00:00</div>
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi -->
+                <div class="mt-8 flex flex-wrap justify-center gap-3">
+                    <button onclick="downloadStudentCSV()" class="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm flex items-center gap-2 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Unduh Bukti Jawaban (.CSV)
+                    </button>
+                    <button onclick="switchView('teacher')" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition">
+                        Lihat Peringkat Kelas (30+ User)
+                    </button>
+                    <button onclick="resetToLobby()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm transition">
+                        Siswa Berikutnya / Ulangi
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: DASHBOARD GURU & SIMULASI 30 USER -->
+        <section id="viewTeacher" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span>Dashboard Monitoring Kelas & Rekap Spreadsheet</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold">Kapasitas 30+ Siswa Aktif</span>
+                    </h2>
+                    <p class="text-slate-400 text-sm mt-1">
+                        Pantau progres 30+ siswa secara bersamaan dan ekspor seluruh jawaban PG + Esai ke Google Spreadsheet / Excel.
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="simulate30Students()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold transition">
+                        + Simulasikan 30 Siswa Masuk
+                    </button>
+                    <button onclick="exportAllClassCSV()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold transition">
+                        Unduh Rekap Excel/CSV Semua Siswa
+                    </button>
+                    <button onclick="switchView('lobby')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold transition">
+                        ← Kembali ke Halaman Siswa
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistik Kelas -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                    <div class="text-xs text-slate-400">Total Peserta Masuk</div>
+                    <div class="text-2xl font-bold text-white mt-1" id="statTotalUsers">0 / 30+</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                    <div class="text-xs text-slate-400">Rata-rata Nilai PG</div>
+                    <div class="text-2xl font-bold text-cyan-400 mt-1" id="statAvgScore">0</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                    <div class="text-xs text-slate-400">Skor Tertinggi</div>
+                    <div class="text-2xl font-bold text-emerald-400 mt-1" id="statMaxScore">0</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+                    <div class="text-xs text-slate-400">Status Sinkronisasi</div>
+                    <div class="text-sm font-bold text-amber-400 mt-2" id="statWebhookStatus">Siap Kirim ke Sheets</div>
+                </div>
+            </div>
+
+            <!-- Tabel Peserta -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950 border-b border-slate-800 text-xs uppercase text-slate-400">
+                                <th class="py-3.5 px-4">No</th>
+                                <th class="py-3.5 px-4">Nama Siswa</th>
+                                <th class="py-3.5 px-4">Kelas / Absen</th>
+                                <th class="py-3.5 px-4">Status</th>
+                                <th class="py-3.5 px-4">Benar PG</th>
+                                <th class="py-3.5 px-4">Nilai PG</th>
+                                <th class="py-3.5 px-4">Esai Dijawab</th>
+                                <th class="py-3.5 px-4">Waktu</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardTableBody" class="divide-y divide-slate-800 text-sm">
+                            <!-- Diisi via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: KONFIGURASI GOOGLE SPREADSHEET -->
+    <div id="spreadsheetModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-bold text-white">Integrasi Otomatis ke Google Spreadsheet</h3>
+                <button onclick="closeModal('spreadsheetModal')" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+
+            <div class="space-y-3 text-sm text-slate-300">
+                <p>Agar jawaban 30+ siswa otomatis masuk ke Google Spreadsheet Anda secara <em>real-time</em>, tempelkan URL Web App dari <strong>Google Apps Script</strong> di bawah ini:</p>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-cyan-400 mb-1">URL Google Apps Script Web App</label>
+                    <input type="url" id="webhookUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec"
+                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono-code focus:outline-none focus:border-cyan-500">
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-emerald-400">Kode Google Apps Script (Salin & Tempel di Extensions → Apps Script)</span>
+                        <button onclick="copyAppsScript()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-white">Salin Kode</button>
+                    </div>
+                    <pre id="appsScriptCode" class="text-[11px] font-mono-code text-slate-300 overflow-x-auto p-2 bg-slate-900 rounded-lg">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Waktu", "Nama Siswa", "Kelas", "No Absen", "Skor PG", "PG Benar", "Durasi", "Detail Jawaban PG", "Detail Jawaban Esai"]);
+  }
+  
+  sheet.appendRow([
+    new Date(),
+    data.nama,
+    data.kelas,
+    data.absen,
+    data.skorPG,
+    data.benarPG,
+    data.durasi,
+    JSON.stringify(data.jawabanPG),
+    JSON.stringify(data.jawabanEsai)
+  ]);
+  
+  return ContentService.createTextOutput(JSON.stringify({status: "success"}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('spreadsheetModal')" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm">Tutup</button>
+                <button onclick="saveWebhookUrl()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm">Simpan URL Spreadsheet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: PRATINJAU BANK SOAL YANG SUDAH DISEIMBANGKAN -->
+    <div id="bankSoalModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-6 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Bank Soal Diperbarui (80 PG Anti-Tebak + 20 Esai)</h3>
+                    <p class="text-xs text-slate-400">Opsi pengecoh dibuat lebih panjang dari kunci jawaban & posisinya teracak merata.</p>
+                </div>
+                <button onclick="closeModal('bankSoalModal')" class="text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+
+            <div class="mb-3 flex gap-2">
+                <input type="text" id="searchQuestionInput" onkeyup="renderBankSoalPreview()" placeholder="Cari kata kunci soal (misal: pinMode, ultrasonik, Arduino, IoT)..."
+                    class="flex-1 px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white">
+                <button onclick="exportBankSoalCSV()" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold">
+                    Ekspor Bank Soal (.CSV)
+                </button>
+            </div>
+
+            <div id="bankSoalList" class="flex-1 overflow-y-auto space-y-3 pr-2 text-sm">
+                <!-- Diisi via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: KONFIRMASI KIRIM -->
+    <div id="confirmModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 text-center space-y-4">
+            <h3 class="text-xl font-bold text-white">Kirim Jawaban Sekarang?</h3>
+            <p class="text-sm text-slate-300" id="confirmSummaryText">
+                Pastikan seluruh soal pilihan ganda dan esai telah terisi sebelum mengirim ke spreadsheet.
+            </p>
+            <div class="flex justify-center gap-3 pt-2">
+                <button onclick="closeModal('confirmModal')" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium">Periksa Lagi</button>
+                <button onclick="finalizeSubmission()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold">Ya, Kirim Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden px-4 py-3 rounded-xl bg-slate-800 border border-cyan-500/40 text-white text-sm shadow-2xl transition-all">
+    </div>
+
+<script>
+/**
+ * ============================================================================
+ * DATABASE 100 SOAL KKA SMA KELAS X TEMA 4 (80 PG ANTI-TEBAK + 20 ESAI)
+ * Seluruh 80 soal pilihan ganda telah diperbarui agar opsi pengecoh (salah)
+ * memiliki kalimat yang lebih panjang & meyakinkan dibanding kunci jawaban,
+ * sehingga siswa tidak dapat menebak jawaban benar dari opsi terpanjang.
+ * ============================================================================
+ */
+const BANK_SOAL = [
+    // --- 80 SOAL PILIHAN GANDA (OPSI PENGECUH LEBIH PANJANG DARI KUNCI) ---
+    {
+        id: 1, type: 'PG',
+        q: 'Dalam pemrograman mikrokontroler Arduino, perintah dasar yang digunakan untuk mengonfigurasi arah kerja sebuah pin digital sebagai jalur keluaran sinyal adalah...',
+        options: [
+            'pinMode(pin, OUTPUT);',
+            'digitalWrite(pin, HIGH, OUTPUT_MODE); // mengatur pin keluaran tegangan tinggi',
+            'analogRead(pin, INPUT_OUTPUT_CONFIG); // membaca dan menetapkan jalur sinyal pin',
+            'serialBegin(pin, OUTPUT_STREAM_9600); // membuka jalur komunikasi keluaran serial'
+        ],
+        answer: 0
+    },
+    {
+        id: 2, type: 'PG',
+        q: 'Fungsi utama blok void setup() di dalam struktur program Arduino IDE saat papan mikrokontroler pertama kali mendapatkan suplai daya listrik adalah...',
+        options: [
+            'Menjalankan inisialisasi konfigurasi pin satu kali saat awal menyala',
+            'Mengulang seluruh instruksi kontrol perangkat dan pembacaan sensor analog secara terus-menerus tanpa henti selama daya tersambung',
+            'Membaca nilai tegangan analog sensor secara berkala setiap detik sekaligus mengirimkan laporan ke jendela Serial Monitor komputer',
+            'Menghentikan eksekusi program utama secara otomatis ketika terjadi lonjakan arus listrik maupun penurunan tegangan pada papan sirkuit'
+        ],
+        answer: 0
+    },
+    {
+        id: 3, type: 'PG',
+        q: 'Fungsi blok void loop() pada kode pemrograman Arduino dirancang untuk mengeksekusi baris perintah secara berulang selama...',
+        options: [
+            'Papan mikrokontroler masih terhubung ke sumber daya listrik aktif',
+            'Proses kompilasi dan verifikasi sintaksis kode program sedang berlangsung di dalam perangkat lunak Arduino IDE komputer',
+            'Kabel komunikasi serial USB tipe B masih terpasang erat pada port komputer dan jendela Serial Monitor dalam keadaan terbuka',
+            'Tombol reset fisik pada papan sirkuit mikrokontroler ditekan dan ditahan oleh pengguna secara manual selama proses pengujian'
+        ],
+        answer: 0
+    },
+    {
+        id: 4, type: 'PG',
+        q: 'Perhatikan potongan kode program Arduino berikut ini:\n```cpp\nvoid setup() {\n  pinMode(13, OUTPUT);\n}\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}\n```\nPerilaku fisik komponen LED yang terhubung ke pin digital 13 berdasarkan kode tersebut adalah...',
+        options: [
+            'Menyala selama 1 detik lalu padam selama 1 detik secara berulang',
+            'Menyala redup perlahan menggunakan modulasi lebar pulsa lalu padam cepat setiap setengah detik secara bergantian',
+            'Menyala terus-menerus dengan tingkat kecerahan maksimal tanpa jeda padam selama papan mikrokontroler Arduino aktif',
+            'Padam selama 1 detik di awal program lalu berkedip sangat cepat sebanyak sepuluh kali sebelum berhenti total'
+        ],
+        answer: 0
+    },
+    {
+        id: 5, type: 'PG',
+        q: 'Peran penting fungsi delay(1000); dalam pengendalian lampu indikator LED pada rangkaian mikrokontroler adalah...',
+        options: [
+            'Memberikan jeda waktu 1 detik agar perubahan nyala terlihat mata',
+            'Mempercepat frekuensi kedipan lampu indikator hingga ribuan kali per detik agar cahaya tampak menyala stabil tanpa berkedip',
+            'Menurunkan tegangan keluaran pin digital menjadi setengah voltase standar untuk menghemat konsumsi daya baterai utama',
+            'Mengunci status logika pin digital agar tidak berubah-ubah meskipun sumber daya listrik utama terputus secara tiba-tiba'
+        ],
+        answer: 0
+    },
+    {
+        id: 6, type: 'PG',
+        q: 'Komponen resistor yang dipasang secara seri dengan lampu LED pada papan breadboard memiliki fungsi utama untuk...',
+        options: [
+            'Membatasi aliran arus listrik agar LED tidak rusak terbakar',
+            'Meningkatkan tegangan sumber baterai dari 3 volt menjadi 5 volt agar cahaya lampu LED memancar jauh lebih terang',
+            'Menyimpan muatan listrik cadangan sementara waktu saat sumber daya utama dari kabel USB komputer terputus mendadak',
+            'Mengubah sinyal arus listrik searah (DC) menjadi arus bolak-balik (AC) berfrekuensi tinggi agar LED dapat berkedip'
+        ],
+        answer: 0
+    },
+    {
+        id: 7, type: 'PG',
+        q: 'Perbedaan mendasar antara sinyal digital dan sinyal analog dalam sistem kendali berbasis mikrokontroler terletak pada...',
+        options: [
+            'Sinyal digital memiliki dua kondisi logika, sinyal analog bervariasi kontinu',
+            'Sinyal digital selalu menggunakan tegangan tinggi 220 volt, sedangkan sinyal analog hanya menggunakan tegangan nol volt',
+            'Sinyal digital hanya dapat digunakan untuk membaca sensor suhu ruangan, sedangkan sinyal analog khusus untuk motor DC',
+            'Sinyal digital membutuhkan kabel penghantar serat optik khusus, sedangkan sinyal analog bekerja tanpa kabel penghantar'
+        ],
+        answer: 0
+    },
+    {
+        id: 8, type: 'PG',
+        q: 'Sensor jarak ultrasonik tipe HC-SR04 mengukur jarak benda di depannya dengan cara memanfaatkan prinsip fisik berupa...',
+        options: [
+            'Pemancaran dan penerimaan pantulan gelombang suara frekuensi tinggi',
+            'Pengukuran perubahan intensitas cahaya inframerah tak kasatmata yang dipantulkan oleh permukaan benda berwarna gelap',
+            'Pendeteksian perubahan garis gaya medan magnetik bumi di sekitar permukaan objek logam maupun non-logam di depannya',
+            'Pembacaan selisih suhu panas radiasi termal yang dipancarkan oleh tubuh manusia maupun benda padat di dalam ruangan'
+        ],
+        answer: 0
+    },
+    {
+        id: 9, type: 'PG',
+        q: 'Fungsi masing-masing pin Trig (Trigger) dan pin Echo pada modul sensor jarak ultrasonik HC-SR04 adalah...',
+        options: [
+            'Trig memancarkan pulsa gelombang, Echo menerima sinyal pantulannya',
+            'Trig menyuplai daya positif 5 volt ke rangkaian sensor, sedangkan Echo menghubungkan jalur referensi ground negatif',
+            'Trig mengatur tingkat sensitivitas pembacaan jarak maksimal, sedangkan Echo menampilkan angka jarak ke layar LCD',
+            'Trig menyimpan data kalibrasi pabrik di dalam memori sensor, sedangkan Echo mereset mikrokontroler saat terjadi error'
+        ],
+        answer: 0
+    },
+    {
+        id: 10, type: 'PG',
+        q: 'Dalam rumus perhitungan jarak sensor ultrasonik `jarak = durasi * 0.034 / 2;`, alasan nilai durasi harus dibagi angka 2 adalah...',
+        options: [
+            'Waktu tempuh gelombang mencakup perjalanan pergi menuju objek dan kembali',
+            'Kecepatan rambat gelombang suara di udara bebas berkurang menjadi setengahnya tepat saat mengenai permukaan benda padat',
+            'Sensor ultrasonik HC-SR04 memiliki dua buah transduser pemancar gelombang berbeda yang bekerja secara bergantian',
+            'Mikrokontroler membaca lebar pulsa listrik masuk dalam dua siklus detak jam prosesor yang terpisah satu sama lain'
+        ],
+        answer: 0
+    },
+    {
+        id: 11, type: 'PG',
+        q: 'Perintah `Serial.begin(9600);` pada bagian awal program Arduino berfungsi untuk mengatur...',
+        options: [
+            'Kecepatan komunikasi data serial sebesar 9600 bit per detik',
+            'Frekuensi detak kristal prosesor utama mikrokontroler ATmega328P sebesar 9600 Hertz selama program dijalankan',
+            'Batas maksimal waktu tunggu pembacaan seluruh sensor analog maupun digital selama 9600 milidetik sebelum reset',
+            'Kapasitas alokasi memori penyimpanan variabel sementara (SRAM) sebesar 9600 byte untuk menampung data teks'
+        ],
+        answer: 0
+    },
+    {
+        id: 12, type: 'PG',
+        q: 'Fungsi utama fitur Serial Monitor yang tersedia di dalam perangkat lunak Arduino IDE adalah...',
+        options: [
+            'Menampilkan data pembacaan sensor dan pesan debugging dari papan',
+            'Menggambar skema jalur rangkaian elektronika dan tata letak komponen breadboard secara tiga dimensi sebelum dirakit',
+            'Mengubah baris kode pemrograman bahasa C++ secara otomatis menjadi diagram alir visual untuk laporan dokumentasi',
+            'Mengukur besarnya konsumsi daya listrik dan arus baterai secara otomatis tanpa memerlukan kabel USB penghubung'
+        ],
+        answer: 0
+    },
+    {
+        id: 13, type: 'PG',
+        q: 'Pada papan sirkuit prototipe (breadboard), pola koneksi lubang-lubang pada jalur tengah (terminal strip) terhubung secara...',
+        options: [
+            'Vertikal dalam kolom pendek berisi lima lubang terpisah parit tengah',
+            'Horizontal memanjang terus dari ujung paling kiri hingga ujung paling kanan papan sirkuit tanpa ada pemisah di tengah',
+            'Diagonal menyilang antar baris atas dan bawah untuk menghubungkan kutub positif dan kutub negatif secara otomatis',
+            'Terisolasi sepenuhnya satu sama lain sehingga memerlukan penyolderan timah panas pada setiap kaki komponen elektronik'
+        ],
+        answer: 0
+    },
+    {
+        id: 14, type: 'PG',
+        q: 'Jalur panjang bertanda garis merah (+) dan biru (-) di bagian tepi papan breadboard umumnya difungsikan sebagai...',
+        options: [
+            'Jalur distribusi sumber tegangan VCC dan referensi Ground bersama',
+            'Tempat khusus pemasangan kaki pin IC mikrokontroler utama berukuran besar agar tidak mengalami hubungan arus pendek',
+            'Konektor antena eksternal untuk memperkuat jangkauan sinyal komunikasi nirkabel Wi-Fi dan Bluetooth pada proyek IoT',
+            'Sekring pengaman otomatis berbahan logam yang akan memutus aliran listrik apabila terjadi kesalahan pemasangan kabel'
+        ],
+        answer: 0
+    },
+    {
+        id: 15, type: 'PG',
+        q: 'Kaki katoda pada komponen lampu LED standar yang memiliki panjang kaki berbeda ditandai dengan ciri fisik...',
+        options: [
+            'Ukuran kaki lebih pendek dan berada di sisi bodi datar',
+            'Ukuran kaki logam jauh lebih panjang dan terhubung langsung ke sumber tegangan positif baterai maupun pin 5V',
+            'Berwarna keemasan mengilap pada bagian ujung kaki logam dan memiliki lekukan melingkar sebagai penanda kutub positif',
+            'Dilapisi selongsong isolator plastik bening pada bagian pangkal badan lampu untuk mencegah panas berlebih saat menyala'
+        ],
+        answer: 0
+    },
+    {
+        id: 16, type: 'PG',
+        q: 'Pin GND (Ground) pada papan Arduino Uno memiliki peran krusial dalam setiap rangkaian elektronika sebagai...',
+        options: [
+            'Titik referensi tegangan nol volt untuk melengkapi sirkuit arus',
+            'Sumber suplai tegangan positif utama sebesar lima volt yang digunakan untuk menggerakkan motor servo dan relay',
+            'Jalur masukan analog khusus untuk membaca sinyal gelombang radio frekuensi tinggi dari modul pemancar nirkabel',
+            'Pin cadangan pengaman yang otomatis aktif menyalurkan daya apabila terjadi kelebihan beban arus pada pin digital'
+        ],
+        answer: 0
+    },
+    {
+        id: 17, type: 'PG',
+        q: 'Rentang nilai keluaran yang dihasilkan oleh fungsi `analogRead()` pada pin input analog Arduino Uno (resolusi 10-bit) adalah...',
+        options: [
+            'Bilangan bulat mulai dari 0 hingga 1023',
+            'Bilangan bulat mulai dari 0 hingga 255 sesuai pengaturan lebar pulsa modulasi pada pin digital bertanda tilde',
+            'Nilai logika biner diskrit yang hanya terdiri dari angka 0 untuk kondisi mati dan angka 1 untuk kondisi menyala',
+            'Nilai bilangan desimal tegangan langsung mulai dari 0.00 volt hingga maksimal 12.00 voltase sumber adaptor'
+        ],
+        answer: 0
+    },
+    {
+        id: 18, type: 'PG',
+        q: 'Fungsi `analogWrite(pin, nilai)` pada pin bertanda tilde (~) di papan Arduino bekerja dengan menerapkan teknik...',
+        options: [
+            'Pulse Width Modulation (PWM) dengan variasi nilai 0 hingga 255',
+            'Pengubahan langsung arus searah menjadi tegangan analog murni mulai dari 0 hingga 1023 volt pada pin keluaran',
+            'Pemotongan frekuensi gelombang suara ultrasonik menjadi sinyal digital biner berkecepatan tinggi di dalam prosesor',
+            'Penguatan arus listrik keluaran pin mikrokontroler hingga mampu memutar motor listrik industri tiga fasa secara langsung'
+        ],
+        answer: 0
+    },
+    {
+        id: 19, type: 'PG',
+        q: 'Tipe data yang paling tepat digunakan dalam kode C++ Arduino untuk menyimpan hasil perhitungan jarak dalam satuan sentimeter berkoma adalah...',
+        options: [
+            'float',
+            'boolean // menyimpan kondisi logika benar atau salah dengan koma desimal',
+            'char // menampung deretan angka pecahan presisi tinggi hingga 16 digit',
+            'byte // tipe data khusus bilangan desimal negatif dan positif berkapasitas besar'
+        ],
+        answer: 0
+    },
+    {
+        id: 20, type: 'PG',
+        q: 'Struktur percabangan `if (jarak < 15)` dalam sistem palang pintu otomatis berbasis sensor ultrasonik berfungsi untuk...',
+        options: [
+            'Membuka palang saat objek terdeteksi pada jarak kurang dari 15 cm',
+            'Mengulang proses pembacaan sensor ultrasonik sebanyak 15 kali berturut-turut sebelum mengirimkan data ke Serial Monitor',
+            'Menunda gerakan motor servo penutup palang selama 15 detik penuh setelah kendaraan melintas melewati garis sensor',
+            'Menghapus seluruh memori penyimpanan variabel sementara apabila jarak benda yang terdeteksi melebihi batas 15 cm'
+        ],
+        answer: 0
+    },
+    {
+        id: 21, type: 'PG',
+        q: 'Konsep utama dari Internet of Things (IoT) dalam pengembangan perangkat cerdas modern adalah...',
+        options: [
+            'Konektivitas objek fisik ber-sensor ke jaringan internet untuk bertukar data',
+            'Penggunaan komputer server mainframe berkapasitas besar untuk mengolah dokumen administrasi perkantoran secara lokal',
+            'Pemasangan kabel jaringan serat optik berkecepatan tinggi di seluruh gedung sekolah untuk akses laboratorium komputer',
+            'Pembuatan aplikasi desain grafis dan animasi tiga dimensi berbasis peramban web modern tanpa koneksi perangkat keras'
+        ],
+        answer: 0
+    },
+    {
+        id: 22, type: 'PG',
+        q: 'Mikrokontroler ESP8266 (NodeMCU) dan ESP32 sering dipilih dibandingkan Arduino Uno untuk proyek IoT karena keunggulan utamanya berupa...',
+        options: [
+            'Tersedianya modul konektivitas Wi-Fi terintegrasi langsung pada chip',
+            'Kapasitas tegangan kerja langsung sebesar 220 volt arus bolak-balik tanpa memerlukan adaptor penurun tegangan tambahan',
+            'Jumlah pin input analog murni sebanyak lima puluh saluran terpisah yang dapat membaca sensor secara bersamaan',
+            'Kemampuan menjalankan sistem operasi desktop berbasis jendela grafis secara mandiri tanpa memerlukan monitor eksternal'
+        ],
+        answer: 0
+    },
+    {
+        id: 23, type: 'PG',
+        q: 'Peran protokol komunikasi MQTT dalam ekosistem perangkat Internet of Things berdaya rendah adalah...',
+        options: [
+            'Mengirim pesan telemetri ringan dengan mekanisme publish-subscribe',
+            'Mengamankan seluruh transaksi perbankan daring menggunakan enkripsi sertifikat ganda berlapis pada server pusat',
+            'Mengunduh dan memutar berkas video siaran langsung beresolusi tinggi dari server penyimpanan awan ke layar smartphone',
+            'Mengatur pembagian alamat IP dinamis secara otomatis pada seluruh komputer di dalam jaringan kabel lokal perkantoran'
+        ],
+        answer: 0
+    },
+    {
+        id: 24, type: 'PG',
+        q: 'Dalam arsitektur sistem IoT, komponen yang bertugas mengubah besaran fisik lingkungan (seperti suhu atau cahaya) menjadi sinyal listrik adalah...',
+        options: [
+            'Sensor',
+            'Aktuator mekanik yang menggerakkan katup air dan motor listrik di lapangan',
+            'Gateway jaringan yang meneruskan paket data menuju server cloud internet',
+            'Broker MQTT yang mengatur antrean topik pesan antar perangkat pelanggan'
+        ],
+        answer: 0
+    },
+    {
+        id: 25, type: 'PG',
+        q: 'Komponen aktuator dalam sistem otomasi rumah pintar (smart home) memiliki peran utama untuk...',
+        options: [
+            'Mengubah sinyal perintah listrik menjadi tindakan gerakan atau aksi fisik',
+            'Mendeteksi perubahan tingkat suhu dan kelembapan udara di dalam ruangan secara berkala setiap beberapa detik sekali',
+            'Menyimpan seluruh riwayat catatan suhu harian ke dalam basis data server berbasis komputasi awan secara permanen',
+            'Menghubungkan jaringan router Wi-Fi di dalam rumah dengan menara pemancar sinyal seluler operator di luar ruangan'
+        ],
+        answer: 0
+    },
+    {
+        id: 26, type: 'PG',
+        q: 'Contoh pasangan komponen sensor dan aktuator yang paling tepat dalam sistem penyiram tanaman otomatis adalah...',
+        options: [
+            'Sensor kelembapan tanah dan pompa air mini',
+            'Motor servo sudut 180 derajat sebagai pendeteksi kadar air dan lampu indikator LED merah sebagai penyiram tanaman',
+            'Buzzer alarm suara frekuensi tinggi sebagai pengukur suhu tanah dan layar karakter LCD 16x2 sebagai penampung air',
+            'Modul Wi-Fi ESP8266 sebagai pengukur keasaman tanah dan kabel penghubung jumper male-to-female sebagai katup pipa'
+        ],
+        answer: 0
+    },
+    {
+        id: 27, type: 'PG',
+        q: 'Fungsi komponen Relay dalam rangkaian mikrokontroler Arduino saat mengendalikan lampu listrik rumah tangga (220V AC) adalah...',
+        options: [
+            'Sakelar elektromagnetik pemisah tegangan rendah DC dan tegangan tinggi AC',
+            'Adaptor penurun tegangan listrik PLN 220V AC menjadi tegangan searah 5V DC untuk menyuplai daya papan Arduino Uno',
+            'Penstabil frekuensi gelombang arus bolak-balik 50Hz agar cahaya lampu penerangan ruangan tidak berkedip saat menyala',
+            'Penyimpan daya listrik cadangan berkapasitas besar apabila aliran listrik utama dari jaringan PLN mengalami pemadaman'
+        ],
+        answer: 0
+    },
+    {
+        id: 28, type: 'PG',
+        q: 'Motor servo mikro (seperti SG90) berbeda dengan motor DC biasa karena motor servo mampu dikendalikan berdasarkan...',
+        options: [
+            'Posisi sudut putaran spesifik antara 0 hingga 180 derajat',
+            'Kecepatan putaran poros terus-menerus hingga puluhan ribu rotasi per menit tanpa memerlukan sinyal pulsa kontrol',
+            'Perubahan kutub medan magnet permanen secara acak tanpa memerlukan sinyal modulasi lebar pulsa dari mikrokontroler',
+            'Tegangan listrik arus bolak-balik tiga fasa yang dihubungkan langsung dari stopkontak dinding ke kabel sinyal servo'
+        ],
+        answer: 0
+    },
+    {
+        id: 29, type: 'PG',
+        q: 'Library `#include <Servo.h>` perlu ditambahkan di baris paling atas kode program Arduino ketika kita ingin...',
+        options: [
+            'Menggunakan fungsi siap pakai untuk mengatur sudut putaran motor servo',
+            'Menghubungkan papan mikrokontroler Arduino Uno dengan jaringan internet melalui modul kabel Ethernet LAN lokal',
+            'Membaca data suhu udara sekitar dan tingkat kelembapan relatif dari modul sensor digital tipe DHT11 maupun DHT22',
+            'Menampilkan grafik gelombang sinyal analog secara real-time pada layar monitor komputer melalui komunikasi serial'
+        ],
+        answer: 0
+    },
+    {
+        id: 30, type: 'PG',
+        q: 'Fungsi perintah `pulseIn(echoPin, HIGH);` pada pembacaan sensor ultrasonik adalah untuk...',
+        options: [
+            'Mengukur lamanya durasi pulsa logika HIGH pada pin Echo dalam mikrodetik',
+            'Mengirimkan gelombang suara ultrasonik frekuensi 40 kHz selama satu detik penuh ke udara bebas di depan sensor',
+            'Mengubah konfigurasi pin Echo menjadi jalur keluaran tegangan konstan sebesar 5 volt selama program berjalan',
+            'Menghitung secara otomatis jumlah objek bergerak yang melintas di depan sensor ultrasonik setiap satu menit sekali'
+        ],
+        answer: 0
+    },
+    {
+        id: 31, type: 'PG',
+        q: 'Jika sensor ultrasonik mencatat waktu pantul gelombang (`durasi`) sebesar 1000 mikrodetik, maka jarak benda dari sensor (kecepatan suara 0,034 cm/µs) adalah...',
+        options: [
+            '17 cm',
+            '34 cm (hasil perkalian langsung tanpa dibagi dua arah pantulan)',
+            '68 cm (hasil perkalian dua kali jarak tempuh gelombang suara)',
+            '8,5 cm (hasil pembagian empat kali siklus gelombang ultrasonik)'
+        ],
+        answer: 0
+    },
+    {
+        id: 32, type: 'PG',
+        q: 'Kesalahan sintaksis paling umum yang menyebabkan proses kompilasi kode di Arduino IDE gagal dengan pesan "expected \';\' before..." adalah...',
+        options: [
+            'Lupa menuliskan tanda titik koma di akhir baris perintah',
+            'Salah memilih jenis kabel data USB penghubung antara port komputer laptop dan konektor papan sirkuit mikrokontroler',
+            'Posisi pemasangan kaki anoda positif dan kaki katoda negatif lampu LED tertukar pada jalur lubang papan breadboard',
+            'Tegangan baterai sumber daya eksternal kurang dari batas standar operasional minimal papan mikrokontroler Arduino'
+        ],
+        answer: 0
+    },
+    {
+        id: 33, type: 'PG',
+        q: 'Tombol "Verify" (ikon tanda centang) pada aplikasi Arduino IDE memiliki fungsi utama untuk...',
+        options: [
+            'Memeriksa kesalahan kode dan mengompilasinya menjadi kode mesin',
+            'Mengirimkan file program hasil kompilasi secara langsung ke dalam memori flash papan mikrokontroler melalui kabel USB',
+            'Menghapus seluruh baris kode program lama yang masih tersimpan di dalam memori EEPROM papan mikrokontroler Arduino',
+            'Membuka jendela layar komunikasi serial secara otomatis untuk memantau keluaran teks pembacaan sensor dari perangkat'
+        ],
+        answer: 0
+    },
+    {
+        id: 34, type: 'PG',
+        q: 'Langkah wajib sebelum menekan tombol "Upload" di Arduino IDE agar program berhasil masuk ke papan mikrokontroler adalah...',
+        options: [
+            'Memilih jenis board dan nomor port serial COM yang sesuai',
+            'Melepaskan seluruh kabel jumper sensor dan aktuator dari pin digital maupun pin analog papan mikrokontroler terlebih dahulu',
+            'Memutuskan koneksi jaringan internet Wi-Fi pada komputer agar tidak mengganggu proses transfer data melalui kabel USB',
+            'Menekan dan menahan tombol reset pada papan Arduino secara terus-menerus selama proses pengunggahan kode berlangsung'
+        ],
+        answer: 0
+    },
+    {
+        id: 35, type: 'PG',
+        q: 'Operator perbandingan logika "sama dengan" dalam kondisi `if` bahasa pemrograman Arduino C++ ditulis menggunakan simbol...',
+        options: [
+            '==',
+            '= (operator penugasan nilai ke dalam sebuah variabel memori)',
+            '!= (operator pembanding pertidaksamaan antara dua buah nilai)',
+            '<= (operator pembanding nilai lebih kecil atau sama dengan)'
+        ],
+        answer: 0
+    },
+    {
+        id: 36, type: 'PG',
+        q: 'Operator logika `&&` (AND) dalam pernyataan `if (suhu > 30 && kelembapan < 40)` akan bernilai benar (TRUE) apabila...',
+        options: [
+            'Kedua kondisi perbandingan terpenuhi secara bersamaan',
+            'Salah satu kondisi saja terpenuhi sementara kondisi perbandingan lainnya bernilai salah pada saat pengujian berlangsung',
+            'Kedua kondisi perbandingan bernilai salah secara bersamaan pada waktu pembacaan sensor suhu dan kelembapan dilakukan',
+            'Nilai pembacaan suhu udara lebih kecil dari 30 derajat dan nilai kelembapan udara lebih besar dari 40 persen'
+        ],
+        answer: 0
+    },
+    {
+        id: 37, type: 'PG',
+        q: 'Komponen Buzzer aktif dalam rangkaian sistem peringatan dini banjir berfungsi untuk menghasilkan keluaran berupa...',
+        options: [
+            'Sinyal bunyi peringatan ketika diberikan tegangan logika HIGH',
+            'Cahaya kilatan berwarna merah terang berintensitas tinggi saat ketinggian permukaan air mencapai batas siaga satu',
+            'Getaran mekanik kuat untuk menggerakkan katup pintu air bendungan secara otomatis ketika debit air sungai meningkat',
+            'Tampilan angka ketinggian permukaan air dalam satuan sentimeter secara digital pada layar penampil karakter'
+        ],
+        answer: 0
+    },
+    {
+        id: 38, type: 'PG',
+        q: 'Sensor LDR (Light Dependent Resistor) bekerja berdasarkan perubahan nilai hambatan listrik yang dipengaruhi oleh...',
+        options: [
+            'Intensitas cahaya yang mengenai permukaan sensor',
+            'Perubahan suhu panas lingkungan di sekitar area pemasangan komponen elektronika di dalam maupun di luar ruangan',
+            'Tekanan udara barometrik atmosfer di dalam ruangan tertutup maupun di area terbuka pada ketinggian tertentu',
+            'Getaran mekanik atau guncangan fisik yang terjadi pada permukaan papan sirkuit prototipe saat perangkat bergerak'
+        ],
+        answer: 0
+    },
+    {
+        id: 39, type: 'PG',
+        q: 'Pada rangkaian lampu penerangan jalan otomatis berbasis sensor LDR, lampu akan diperintahkan menyala oleh mikrokontroler ketika...',
+        options: [
+            'Intensitas cahaya menurun di bawah ambang batas gelap',
+            'Nilai pembacaan intensitas cahaya matahari meningkat tajam pada siang hari yang terik di sekitar tiang lampu jalan',
+            'Suhu udara di sekitar kotak panel kontrol lampu jalan mengalami kenaikan secara drastis akibat panas matahari',
+            'Tidak ada pergerakan kendaraan bermotor maupun pejalan kaki yang terdeteksi melintas di bawah tiang lampu jalan'
+        ],
+        answer: 0
+    },
+    {
+        id: 40, type: 'PG',
+        q: 'Sensor PIR (Passive Infrared) sangat efektif digunakan pada sistem keamanan ruangan pintar karena kemampuannya dalam mendeteksi...',
+        options: [
+            'Perubahan radiasi panas inframerah dari pergerakan tubuh',
+            'Jarak presisi dinding pembatas ruangan menggunakan pantulan gelombang suara ultrasonik berfrekuensi tinggi',
+            'Kadar konsentrasi gas karbon monoksida dan kepulan asap kebakaran di dalam ruangan tertutup secara dini',
+            'Intensitas suara langkah kaki penyusup melalui getaran frekuensi akustik yang merambat di udara ruangan'
+        ],
+        answer: 0
+    },
+    {
+        id: 41, type: 'PG',
+        q: 'Keuntungan utama penggunaan simulator elektronika daring seperti Tinkercad Circuits atau Wokwi sebelum merakit komponen fisik adalah...',
+        options: [
+            'Mencegah kerusakan komponen akibat salah pengkabelan dan hemat biaya',
+            'Menghasilkan produk perangkat keras fisik siap jual secara instan tanpa perlu melakukan proses perakitan komponen',
+            'Meningkatkan kecepatan clock prosesor mikrokontroler fisik secara permanen hingga dua kali lipat dari standar pabrik',
+            'Menggantikan kebutuhan penulisan bahasa pemrograman C++ dengan perintah suara manusia secara otomatis tanpa kode'
+        ],
+        answer: 0
+    },
+    {
+        id: 42, type: 'PG',
+        q: 'Perhatikan kode berikut:\n```cpp\nfor (int i = 0; i < 5; i++) {\n  digitalWrite(8, HIGH);\n  delay(200);\n  digitalWrite(8, LOW);\n  delay(200);\n}\n```\nJumlah kedipan lampu LED pada pin 8 yang terjadi dalam satu kali siklus perulangan `for` tersebut adalah...',
+        options: [
+            '5 kali kedipan',
+            '4 kali kedipan karena indeks perulangan dimulai dari angka nol hingga empat',
+            '6 kali kedipan karena kondisi batas kurang dari lima ikut dieksekusi satu kali lagi',
+            '10 kali kedipan akibat gabungan waktu tunda HIGH dan LOW masing-masing lima kali'
+        ],
+        answer: 0
+    },
+    {
+        id: 43, type: 'PG',
+        q: 'Fungsi utama platform Cloud Dashboard IoT (seperti Blynk, ThingSpeak, atau Arduino IoT Cloud) bagi pengguna akhir adalah...',
+        options: [
+            'Memantau data sensor dan mengendalikan aktuator jarak jauh via internet',
+            'Menyolder kaki-kaki komponen elektronik pada papan PCB secara otomatis melalui jaringan komunikasi nirkabel Wi-Fi',
+            'Menambah kapasitas memori RAM dan penyimpanan flash fisik pada papan mikrokontroler Arduino Uno secara daring',
+            'Mengubah sinyal listrik arus searah dari baterai menjadi listrik arus bolak-balik bertegangan tinggi secara otomatis'
+        ],
+        answer: 0
+    },
+    {
+        id: 44, type: 'PG',
+        q: 'Potensiometer yang sering digunakan dalam latihan input analog Arduino sebenarnya merupakan komponen elektronika berupa...',
+        options: [
+            'Resistor variabel yang nilai hambatannya dapat diubah dengan diputar',
+            'Kapasitor keramik non-polar yang berfungsi menyimpan muatan listrik sementara waktu untuk menstabilkan tegangan',
+            'Transistor penguat sinyal arus searah berdaya besar yang digunakan untuk menggerakkan motor DC secara langsung',
+            'Dioda penyearah gelombang penuh yang mengubah arus bolak-balik menjadi sinyal digital bertegangan rendah'
+        ],
+        answer: 0
+    },
+    {
+        id: 45, type: 'PG',
+        q: 'Fungsi `map(nilai, 0, 1023, 0, 180);` dalam program kendali motor servo menggunakan potensiometer bertujuan untuk...',
+        options: [
+            'Mengonversi rentang bacaan analog 0–1023 menjadi sudut 0–180 derajat',
+            'Menampilkan peta koordinat lokasi geografis GPS perangkat IoT secara langsung ke dalam layar monitor komputer',
+            'Membatasi tegangan masukan dari kaki tengah potensiometer agar tidak melebihi batas aman 180 milivolt pada pin',
+            'Mengulang proses pembacaan posisi putaran tuas potensiometer secara otomatis sebanyak 1023 kali dalam satu detik'
+        ],
+        answer: 0
+    },
+    {
+        id: 46, type: 'PG',
+        q: 'Dalam pemrograman mikrokontroler, penggunaan kata kunci `const int ledPin = 9;` lebih disarankan dibandingkan `int ledPin = 9;` karena...',
+        options: [
+            'Melindungi nomor pin agar tidak berubah dan menghemat memori',
+            'Membuat arus listrik yang mengalir keluar melalui pin digital 9 menjadi jauh lebih stabil dan bebas dari gangguan',
+            'Memungkinkan pin digital 9 menerima sinyal input analog dan mengeluarkan sinyal PWM secara bersamaan dalam satu waktu',
+            'Menghapus kebutuhan pemasangan komponen resistor pembatas arus pada rangkaian lampu indikator LED di papan breadboard'
+        ],
+        answer: 0
+    },
+    {
+        id: 47, type: 'PG',
+        q: 'Apa yang terjadi pada papan Arduino Uno apabila pin 5V dihubungkan langsung ke pin GND menggunakan kabel jumper tanpa beban?',
+        options: [
+            'Terjadi hubungan arus pendek (short circuit) yang merusak regulator',
+            'Lampu indikator daya bawaan pada papan sirkuit menyala dua kali lebih terang dari kondisi operasional normal',
+            'Kecepatan komunikasi data serial melalui port USB meningkat secara otomatis menjadi dua kali lipat lebih cepat',
+            'Seluruh kode program yang tersimpan di dalam memori mikrokontroler terhapus bersih kembali ke setelan awal pabrik'
+        ],
+        answer: 0
+    },
+    {
+        id: 48, type: 'PG',
+        q: 'Tampilan layar LCD 16x2 dengan modul I2C lebih banyak dipilih dibandingkan LCD 16x2 standar karena...',
+        options: [
+            'Hanya membutuhkan dua jalur data (SDA dan SCL) sehingga hemat pin',
+            'Mampu menampilkan gambar animasi dan siaran video berwarna dengan resolusi definisi tinggi secara langsung',
+            'Tidak memerlukan sumber suplai tegangan listrik 5 volt maupun jalur ground dari papan mikrokontroler utama',
+            'Memiliki ukuran dimensi layar sepuluh kali lebih lebar untuk menampilkan grafik batang dan diagram lingkaran kompleks'
+        ],
+        answer: 0
+    },
+    {
+        id: 49, type: 'PG',
+        q: 'Pada komunikasi antarmuka I2C di papan Arduino Uno, dua pin khusus yang digunakan untuk jalur data dan detak waktu adalah...',
+        options: [
+            'Pin A4 (SDA) dan Pin A5 (SCL)',
+            'Pin Digital D0 (RX) dan Pin Digital D1 (TX) yang terhubung dengan komunikasi serial USB',
+            'Pin Digital D9 (PWM) dan Pin Digital D10 (SS) yang digunakan untuk antarmuka protokol SPI',
+            'Pin Analog A0 (IN) dan Pin Analog A1 (OUT) sebagai jalur masukan tegangan sensor eksternal'
+        ],
+        answer: 0
+    },
+    {
+        id: 50, type: 'PG',
+        q: 'Kelemahan utama penggunaan fungsi `delay()` berdurasi lama dalam sistem multitasking mikrokontroler adalah...',
+        options: [
+            'Menghentikan seluruh eksekusi kode sehingga input lain tidak terbaca',
+            'Menyebabkan chip prosesor mikrokontroler mengalami panas berlebih hingga merusak komponen secara permanen',
+            'Menghapus seluruh nilai variabel global dan konstanta yang telah disimpan di dalam memori RAM sebelumnya',
+            'Mengubah konfigurasi pin INPUT menjadi OUTPUT secara acak selama waktu tunggu jeda program berlangsung'
+        ],
+        answer: 0
+    },
+    {
+        id: 51, type: 'PG',
+        q: 'Alternatif fungsi non-blocking di Arduino untuk mengatur jeda waktu tanpa menghentikan pembacaan sensor lainnya adalah menggunakan...',
+        options: [
+            'millis()',
+            'delayMicroseconds() // menunda seluruh eksekusi baris program dalam satuan mikrodetik',
+            'pulseIn() // menunggu hingga terjadi perubahan pulsa sinyal pada pin masukan sensor',
+            'analogReference() // mengatur tegangan referensi maksimal untuk konversi sinyal analog'
+        ],
+        answer: 0
+    },
+    {
+        id: 52, type: 'PG',
+        q: 'Sensor DHT11 atau DHT22 dalam proyek stasiun cuaca mini berbasis IoT berfungsi untuk mengukur parameter lingkungan berupa...',
+        options: [
+            'Suhu udara sekitar dan tingkat kelembapan relatif',
+            'Kecepatan hembusan angin dan arah mata angin menggunakan baling-baling berputar yang terhubung ke sensor optik',
+            'Tekanan udara barometrik atmosfer serta ketinggian lokasi stasiun cuaca dari permukaan air laut secara presisi',
+            'Intensitas curah hujan harian dan tingkat derajat keasaman (pH) air hujan yang turun di area terbuka'
+        ],
+        answer: 0
+    },
+    {
+        id: 53, type: 'PG',
+        q: 'Dalam berpikir komputasional (Computational Thinking), proses memecah masalah proyek IoT kompleks menjadi bagian-bagian kecil seperti modul sensor, logika, dan aktuator disebut...',
+        options: [
+            'Dekomposisi (Decomposition)',
+            'Abstraksi (Abstraction) yaitu menyaring detail komponen yang tidak relevan dari sistem',
+            'Pengenalan Pola (Pattern Recognition) yaitu mencari kesamaan data dari pembacaan sensor',
+            'Algoritma (Algorithm Design) yaitu menyusun urutan langkah kode program secara sistematis'
+        ],
+        answer: 0
+    },
+    {
+        id: 54, type: 'PG',
+        q: 'Tahap berpikir komputasional berupa penyusunan langkah-langkah logis terurut sebelum menuliskan baris kode program Arduino disebut...',
+        options: [
+            'Perancangan Algoritma',
+            'Dekomposisi Masalah menjadi sub-modul perangkat keras sensor dan aktuator terpisah',
+            'Abstraksi Komponen dengan menyembunyikan kerumitan skema rangkaian elektronika internal',
+            'Kalibrasi Perangkat keras sensor agar nilai pembacaan sesuai dengan standar pengukuran'
+        ],
+        answer: 0
+    },
+    {
+        id: 55, type: 'PG',
+        q: 'Pada rangkaian tombol tekan (push button) yang menggunakan konfigurasi `pinMode(2, INPUT_PULLUP);`, status logika pin saat tombol TIDAK ditekan adalah...',
+        options: [
+            'HIGH (bernilai 1 karena terhubung resistor pull-up internal)',
+            'LOW (bernilai 0 karena jalur pin digital terhubung langsung menuju jalur referensi Ground negatif papan sirkuit)',
+            'FLOATING (nilai logika acak berubah-ubah antara 0 dan 1 akibat gangguan gelombang elektromagnetik di sekitarnya)',
+            'ANALOG (menghasilkan nilai tegangan setengah konstan sebesar 2,5 volt pada pin digital mikrokontroler)'
+        ],
+        answer: 0
+    },
+    {
+        id: 56, type: 'PG',
+        q: 'Tujuan utama penggunaan resistor pull-up atau pull-down pada rangkaian sakelar push button digital adalah untuk...',
+        options: [
+            'Mencegah kondisi floating (ambang tidak menentu) saat tombol dilepas',
+            'Memperbesar bunyi klik mekanik sakelar ketika tombol ditekan oleh jari pengguna agar terdengar lebih jelas',
+            'Menurunkan tegangan sumber utama 5V menjadi 1V agar komponen tombol tekan memiliki umur pakai yang lebih awet',
+            'Mempercepat proses verifikasi dan kompilasi kode program di dalam perangkat lunak Arduino IDE komputer'
+        ],
+        answer: 0
+    },
+    {
+        id: 57, type: 'PG',
+        q: 'Perhatikan kode berikut:\n```cpp\nint nilai = 75;\nif (nilai >= 80) {\n  Serial.println("A");\n} else if (nilai >= 70) {\n  Serial.println("B");\n} else {\n  Serial.println("C");\n}\n```\nKarakter huruf yang akan dicetak pada jendela Serial Monitor berdasarkan kode tersebut adalah...',
+        options: [
+            'B',
+            'A (karena nilai 75 dianggap memenuhi syarat kondisi percabangan pertama)',
+            'C (karena program selalu mengeksekusi blok else di bagian paling akhir)',
+            'AB (karena kedua blok kondisi pertama dan kedua bernilai benar bersamaan)'
+        ],
+        answer: 0
+    },
+    {
+        id: 58, type: 'PG',
+        q: 'Dalam keamanan sistem Internet of Things (IoT Security), risiko utama apabila perangkat cerdas menggunakan kata sandi bawaan pabrik (default password) adalah...',
+        options: [
+            'Perangkat mudah diretas dan diambil alih kendalinya oleh pihak asing',
+            'Konsumsi daya baterai perangkat cerdas menjadi dua kali lebih boros dibandingkan saat menggunakan sandi buatan sendiri',
+            'Kecepatan pengiriman paket data sensor menuju server komputasi awan menurun secara drastis hingga terputus',
+            'Sensor ultrasonik kehilangan tingkat akurasi dalam mengukur jarak benda padat yang berada tepat di depannya'
+        ],
+        answer: 0
+    },
+    {
+        id: 59, type: 'PG',
+        q: 'Apa fungsi utama dari API Key atau Auth Token dalam menghubungkan papan ESP8266/ESP32 ke platform cloud IoT?',
+        options: [
+            'Kode autentikasi unik agar perangkat terhubung ke akun yang tepat',
+            'Penguat sinyal gelombang radio pemancar Wi-Fi agar mampu menjangkau router yang berada pada jarak ratusan meter',
+            'Penerjemah otomatis bahasa pemrograman C++ menjadi bahasa Python di dalam server penyimpanan data berbasis awan',
+            'Memori penyimpan cadangan data pembacaan sensor sementara apabila koneksi internet di ruangan terputus mendadak'
+        ],
+        answer: 0
+    },
+    {
+        id: 60, type: 'PG',
+        q: 'Komponen kapasitor elektrolit (elco) yang sering dipasang paralel pada jalur suplai daya motor servo dalam rangkaian Arduino berfungsi untuk...',
+        options: [
+            'Meredam lonjakan penurunan tegangan sesaat saat motor mulai bergerak',
+            'Meningkatkan sudut putaran maksimal poros motor servo standar hingga mampu berputar penuh sebesar 360 derajat',
+            'Mengubah sinyal digital modulasi lebar pulsa (PWM) menjadi sinyal gelombang suara berfrekuensi tinggi pada motor',
+            'Memutus aliran arus listrik secara permanen apabila kumparan di dalam motor servo mengalami panas berlebih'
+        ],
+        answer: 0
+    },
+    {
+        id: 61, type: 'PG',
+        q: 'Perbedaan utama antara mikrokontroler (seperti Arduino Uno) dan mikroprosesor (seperti Raspberry Pi) terletak pada...',
+        options: [
+            'Mikrokontroler fokus kontrol hardware real-time, mikroprosesor komputer mini',
+            'Mikrokontroler wajib dihubungkan dengan monitor layar besar HDMI, sedangkan mikroprosesor beroperasi tanpa layar',
+            'Mikrokontroler hanya dapat bekerja menggunakan sumber baterai AA, sedangkan mikroprosesor wajib listrik PLN 220V',
+            'Mikrokontroler hanya dapat diprogram satu kali dari pabrik, sedangkan mikroprosesor dapat diprogram ulang berkali-kali'
+        ],
+        answer: 0
+    },
+    {
+        id: 62, type: 'PG',
+        q: 'Kabel jumper tipe Male-to-Female pada perakitan prototipe elektronika digunakan untuk menghubungkan...',
+        options: [
+            'Lubang pin header Arduino dengan kaki pin jantan pada modul sensor',
+            'Dua buah lubang komponen pada papan breadboard yang berada di kolom dan baris yang berbeda satu sama lain',
+            'Konektor port USB tipe B pada papan Arduino dengan port USB tipe A yang terdapat pada komputer atau laptop',
+            'Terminal kutub baterai kotak 9 volt langsung menuju konektor motor listrik industri arus bolak-balik tiga fasa'
+        ],
+        answer: 0
+    },
+    {
+        id: 63, type: 'PG',
+        q: 'Jika sebuah proyek tempat sampah pintar otomatis gagal membuka tutupnya meskipun tangan sudah didekatkan ke sensor ultrasonik, langkah debugging pertama yang paling logis adalah...',
+        options: [
+            'Memeriksa bacaan jarak di Serial Monitor dan mengecek kabel daya servo',
+            'Mengganti seluruh unit komputer laptop yang digunakan untuk menulis kode program dengan perangkat komputer yang baru',
+            'Membeli modul sensor ultrasonik baru sebanyak lima buah sekaligus tanpa memeriksa koneksi kabel jumper terlebih dahulu',
+            'Menghapus perangkat lunak Arduino IDE lalu menginstal ulang seluruh sistem operasi komputer dari awal kembali'
+        ],
+        answer: 0
+    },
+    {
+        id: 64, type: 'PG',
+        q: 'Dalam pemrograman Arduino, variabel yang dideklarasikan di bagian paling atas di luar fungsi `setup()` maupun `loop()` disebut...',
+        options: [
+            'Variabel Global yang dapat diakses oleh seluruh fungsi dalam program',
+            'Variabel Lokal sementara yang hanya berlaku dan dapat dikenali di dalam satu blok kurung kurawal fungsi tertentu',
+            'Variabel Konstanta Statis yang nilainya otomatis terhapus dari memori RAM tepat setelah satu detik program berjalan',
+            'Variabel Sistem Bawaan pabrik yang tidak diperbolehkan digunakan untuk menyimpan angka hasil pembacaan sensor'
+        ],
+        answer: 0
+    },
+    {
+        id: 65, type: 'PG',
+        q: 'Perintah `Serial.print(jarak);` berbeda dengan `Serial.println(jarak);` pada tampilan Serial Monitor karena...',
+        options: [
+            'Serial.println menambahkan baris baru (enter) setelah mencetak nilai',
+            'Serial.print mencetak nilai sensor dalam format angka biner nol dan satu, sedangkan Serial.println dalam format teks',
+            'Serial.println hanya dapat bekerja dengan baik pada pengaturan kecepatan komunikasi baud rate di atas 115200 bps',
+            'Serial.print mengirimkan data pembacaan melalui jaringan Wi-Fi, sedangkan Serial.println melalui kabel data USB'
+        ],
+        answer: 0
+    },
+    {
+        id: 66, type: 'PG',
+        q: 'Komponen LED RGB (Red, Green, Blue) memiliki empat buah kaki karena...',
+        options: [
+            'Terdiri dari tiga elemen warna terpisah dengan satu kaki bersama',
+            'Membutuhkan empat sumber tegangan baterai yang terpisah agar ketiga warna cahaya dapat menyala secara bersamaan',
+            'Dilengkapi sensor cahaya internal di dalam kapsulnya untuk menyesuaikan tingkat kecerahan warna secara otomatis',
+            'Memiliki dua buah kaki logam cadangan apabila salah satu kaki utama patah saat dipasang pada lubang breadboard'
+        ],
+        answer: 0
+    },
+    {
+        id: 67, type: 'PG',
+        q: 'Teknologi komunikasi nirkabel jarak pendek berdaya sangat rendah yang sering dipakai pada perangkat wearable IoT (seperti jam tangan pintar) adalah...',
+        options: [
+            'Bluetooth Low Energy (BLE)',
+            'Jaringan Komunikasi Satelit Geostasioner orbit tinggi untuk transmisi antar benua',
+            'Kabel Jaringan Serat Optik Bawah Laut berkecepatan transfer terabit per detik',
+            'Pemancar Gelombang Radio Modulasi Amplitudo (AM) jarak jauh berdaya ribuan watt'
+        ],
+        answer: 0
+    },
+    {
+        id: 68, type: 'PG',
+        q: 'Teknologi LoRa (Long Range) dalam penerapan Smart Agriculture (pertanian pintar) di lahan perkebunan luas dipilih karena keunggulannya berupa...',
+        options: [
+            'Jangkauan transmisi hingga beberapa kilometer dengan daya sangat hemat',
+            'Kemampuan mengirimkan siaran video langsung beresolusi 4K dari kamera kebun tanpa jeda waktu sedikit pun',
+            'Kecepatan pengunduhan berkas data hingga gigabit per detik di dalam ruangan beton bertulang yang tertutup rapat',
+            'Tidak memerlukan komponen antena pemancar maupun penerima sama sekali pada stasiun gerbang gateway utama'
+        ],
+        answer: 0
+    },
+    {
+        id: 69, type: 'PG',
+        q: 'Penerapan sistem parkir pintar (Smart Parking) di pusat perbelanjaan memanfaatkan kombinasi sensor ultrasonik dan indikator LED di setiap slot parkir untuk...',
+        options: [
+            'Mendeteksi ketersediaan ruang parkir kosong dan memandu pengemudi',
+            'Mencuci bagian bawah rangka kendaraan secara otomatis setiap kali mobil berhenti tepat di atas permukaan sensor',
+            'Mengisi daya baterai mobil listrik secara nirkabel dari jarak jauh melalui pancaran gelombang suara ultrasonik',
+            'Mengunci keempat roda kendaraan secara otomatis apabila pengemudi memarkirkan mobil melebihi batas waktu maksimal'
+        ],
+        answer: 0
+    },
+    {
+        id: 70, type: 'PG',
+        q: 'Perhatikan pernyataan berikut:\n`int sisa = 17 % 5;`\nNilai yang tersimpan di dalam variabel `sisa` setelah operasi modulo tersebut dijalankan adalah...',
+        options: [
+            '2',
+            '3 (hasil pembagian bilangan bulat 17 dibagi dengan 5)',
+            '5 (nilai pembagi utama dalam operasi aritmatika modulo)',
+            '12 (hasil pengurangan langsung antara angka 17 dan 5)'
+        ],
+        answer: 0
+    },
+    {
+        id: 71, type: 'PG',
+        q: 'Fungsi `digitalWrite(trigPin, LOW); delayMicroseconds(2);` sebelum memberikan pulsa HIGH selama 10 mikrodetik pada sensor HC-SR04 bertujuan untuk...',
+        options: [
+            'Memastikan pin bersih pada logika rendah sebelum memicu pulsa ultrasonik',
+            'Mematikan seluruh suplai daya listrik sensor selama dua menit penuh agar komponen transduser tidak cepat panas',
+            'Mengubah frekuensi gelombang suara ultrasonik menjadi pancaran sinar inframerah berdaya rendah secara otomatis',
+            'Menghapus seluruh catatan data jarak sebelumnya yang tersimpan di dalam memori internal EEPROM sensor jarak'
+        ],
+        answer: 0
+    },
+    {
+        id: 72, type: 'PG',
+        q: 'Batas jarak pengukuran efektif sensor ultrasonik HC-SR04 secara spesifikasi teknis umumnya berada pada rentang...',
+        options: [
+            '2 cm hingga 400 cm dengan permukaan objek pantul relatif datar',
+            '0,1 milimeter hingga 5 milimeter khusus dirancang untuk mengukur ketebalan selembar kertas maupun pelat tipis',
+            '10 meter hingga 500 meter di ruang terbuka untuk mendeteksi ketinggian pesawat terbang maupun drone di udara',
+            '1 kilometer hingga 10 kilometer di bawah permukaan air untuk pemetaan kontur kedalaman dasar lautan lepas'
+        ],
+        answer: 0
+    },
+    {
+        id: 73, type: 'PG',
+        q: 'Objek dengan permukaan berbahan kain wol tebal atau busa peredam suara sering kali sulit dideteksi secara akurat oleh sensor ultrasonik karena...',
+        options: [
+            'Permukaan lunak menyerap gelombang suara sehingga pantulannya lemah',
+            'Bahan kain wol menghasilkan medan magnet statis kuat yang mengganggu kinerja pin Echo pada modul sensor jarak',
+            'Suhu permukaan busa peredam terlalu dingin untuk dapat memantulkan sinyal gelombang cahaya inframerah kembali',
+            'Warna gelap pada permukaan kain menyerap seluruh tegangan listrik 5 volt dari papan mikrokontroler Arduino'
+        ],
+        answer: 0
+    },
+    {
+        id: 74, type: 'PG',
+        q: 'Dalam kolaborasi pengembangan proyek rekayasa KKA, dokumentasi skema rangkaian dan komentar kode (`//`) sangat penting dilakukan agar...',
+        options: [
+            'Anggota tim lain mudah memahami alur sistem dan melakukan perbaikan',
+            'Ukuran kapasitas file program hasil kompilasi menjadi jauh lebih kecil saat diunggah ke dalam memori papan Arduino',
+            'Kecepatan eksekusi baris perintah oleh prosesor utama mikrokontroler meningkat secara signifikan saat dijalankan',
+            'Papan sirkuit prototipe tidak memerlukan proses pengujian ulang lagi sebelum dipresentasikan di depan kelas'
+        ],
+        answer: 0
+    },
+    {
+        id: 75, type: 'PG',
+        q: 'Format pertukaran data ringan berbasis teks yang paling umum digunakan saat perangkat IoT mengirimkan data sensor ke server web API adalah...',
+        options: [
+            'JSON (JavaScript Object Notation)',
+            'MP4 (MPEG-4 Part 14 Multimedia Video Container Format)',
+            'BMP (Uncompressed Raster Bitmap Image File Format)',
+            'WAV (Waveform Uncompressed Digital Audio File Format)'
+        ],
+        answer: 0
+    },
+    {
+        id: 76, type: 'PG',
+        q: 'Peran Cloud Computing (Komputasi Awan) dalam arsitektur sistem IoT berskala kota pintar (Smart City) adalah...',
+        options: [
+            'Menyimpan, mengolah, dan menganalisis jutaan data sensor terpusat',
+            'Menggantikan fungsi fisik seluruh kabel jaringan listrik dan tiang lampu penerangan umum di sepanjang jalan raya',
+            'Menurunkan suhu udara lingkungan perkotaan secara langsung melalui sistem pendingin udara dari ruang server pusat',
+            'Menghilangkan sepenuhnya kebutuhan koneksi jaringan internet pada setiap perangkat sensor yang terpasang di lapangan'
+        ],
+        answer: 0
+    },
+    {
+        id: 77, type: 'PG',
+        q: 'Konsep Edge Computing pada sistem IoT modern diterapkan dengan cara...',
+        options: [
+            'Memproses sebagian data di perangkat lokal dekat sensor sebelum ke cloud',
+            'Mengirimkan seluruh data mentah rekaman video ke server luar negeri setiap milidetik tanpa penyaringan awal',
+            'Mematikan seluruh unit sensor lokal di lapangan dan hanya mengandalkan perhitungan estimasi manual oleh operator',
+            'Menempatkan papan mikrokontroler utama di bagian tepi luar kotak pelindung plastik agar terkena angin langsung'
+        ],
+        answer: 0
+    },
+    {
+        id: 78, type: 'PG',
+        q: 'Jika sebuah LED dihubungkan terbalik (kaki anoda ke GND dan kaki katoda ke pin digital HIGH), maka kondisi yang akan terjadi pada rangkaian adalah...',
+        options: [
+            'LED tidak menyala karena dioda hanya mengalirkan arus satu arah',
+            'LED akan menyala dua kali lebih terang dengan perubahan spektrum warna cahaya dari merah menjadi biru terang',
+            'Papan mikrokontroler Arduino akan langsung terbakar dan mengeluarkan asap dalam hitungan beberapa detik saja',
+            'Sensor ultrasonik yang terpasang di sebelahnya akan berhenti memancarkan gelombang suara frekuensi tinggi secara total'
+        ],
+        answer: 0
+    },
+    {
+        id: 79, type: 'PG',
+        q: 'Dampak positif penerapan teknologi IoT dalam bidang kesehatan (Smart Healthcare) bagi pasien penyakit kronis adalah...',
+        options: [
+            'Pemantauan detak jantung dan kadar oksigen real-time oleh tenaga medis',
+            'Penggantian seluruh peran dokter spesialis dan perawat rumah sakit dengan robot mekanik otomatis sepenuhnya',
+            'Penghapusan kebutuhan konsumsi obat-obatan medis harian melalui terapi pancaran gelombang radio jaringan Wi-Fi',
+            'Peningkatan biaya perawatan rawat inap rumah sakit akibat penggunaan kabel jaringan serat optik di kamar pasien'
+        ],
+        answer: 0
+    },
+    {
+        id: 80, type: 'PG',
+        q: 'Etika dan tanggung jawab utama pengembang sistem IoT terkait data pribadi pengguna (seperti rekaman kamera pintar atau lokasi GPS) adalah...',
+        options: [
+            'Menjaga kerahasiaan data dengan enkripsi dan izin pengguna',
+            'Menjual riwayat lokasi perjalanan harian pengguna kepada pihak pengiklan komersial tanpa pemberitahuan terlebih dahulu',
+            'Membuka akses publik seluruh tayangan kamera pengawas rumah agar dapat dipantau oleh siapa saja melalui internet',
+            'Menyimpan seluruh kata sandi akun pengguna di dalam basis data server dalam bentuk teks biasa tanpa proteksi'
+        ],
+        answer: 0
+    },
+
+    // --- 20 SOAL ESAI ANALISIS (NOMOR 81 - 100) ---
+    {
+        id: 81, type: 'ESSAY',
+        q: 'Perhatikan kode program Arduino berikut:\n```cpp\nvoid setup() {\n  pinMode(8, OUTPUT);\n  pinMode(9, OUTPUT);\n}\nvoid loop() {\n  digitalWrite(8, HIGH);\n  digitalWrite(9, LOW);\n  delay(500);\n  digitalWrite(8, LOW);\n  digitalWrite(9, HIGH);\n  delay(500);\n}\n```\nJelaskan secara rinci bagaimana urutan kerja kedua LED pada pin 8 dan pin 9 tersebut, serta berapa total waktu yang dibutuhkan untuk menyelesaikan satu siklus penuh perulangan `loop()`!'
+    },
+    {
+        id: 82, type: 'ESSAY',
+        q: 'Sebuah sensor jarak ultrasonik HC-SR04 dipasang pada tempat sampah otomatis. Ketika tangan didekatkan, sensor mencatat waktu pantul gelombang (`durasi`) sebesar 1.200 mikrodetik. Hitunglah jarak tangan ke sensor dalam satuan sentimeter (gunakan kecepatan suara 0,034 cm/µs) dan jelaskan mengapa hasil perkalian tersebut harus dibagi 2!'
+    },
+    {
+        id: 83, type: 'ESSAY',
+        q: 'Dalam merancang prototipe lampu lalu lintas pintar menggunakan papan breadboard dan Arduino Uno, seorang siswa memasang 3 buah LED (Merah, Kuning, Hijau) tanpa menggunakan resistor pembatas arus. Analisislah dampak teknis yang akan terjadi pada rangkaian tersebut serta sebutkan nilai resistor yang ideal digunakan!'
+    },
+    {
+        id: 84, type: 'ESSAY',
+        q: 'Jelaskan perbedaan mendasar antara fungsi `void setup()` dan `void loop()` pada pemrograman mikrokontroler Arduino, serta berikan masing-masing dua contoh baris perintah yang tepat ditempatkan di dalam kedua blok fungsi tersebut!'
+    },
+    {
+        id: 85, type: 'ESSAY',
+        q: 'Perhatikan potongan kode berikut:\n```cpp\nint trigPin = 10;\nint echoPin = 11;\nint ledPin = 13;\n```\nTuliskan potongan kode algoritma logika di dalam `void loop()` agar lampu LED pada pin 13 menyala ketika sensor ultrasonik mendeteksi jarak benda kurang dari atau sama dengan 20 cm, dan padam ketika jaraknya lebih dari 20 cm!'
+    },
+    {
+        id: 86, type: 'ESSAY',
+        q: 'Anda diminta merancang sistem penyiram tanaman otomatis berbasis Internet of Things (IoT) untuk kebun sekolah. Sebutkan komponen input (sensor), kontroler, aktuator, dan platform pemantauan yang Anda pilih, lalu jelaskan alur kerja sistem dari pembacaan data hingga penyiraman terjadi!'
+    },
+    {
+        id: 87, type: 'ESSAY',
+        q: 'Jelaskan perbedaan cara kerja sinyal Digital dan sinyal Analog pada pin-pin papan Arduino Uno, serta berikan contoh masing-masing dua komponen sensor atau aktuator yang menggunakan jenis sinyal tersebut!'
+    },
+    {
+        id: 88, type: 'ESSAY',
+        q: 'Mengapa dalam pembuatan sistem keamanan pintu berbasis mikrokontroler, penggunaan fungsi `delay(10000)` (jeda 10 detik) saat alarm berbunyi dapat menimbulkan masalah jika ada tombol darurat (panic button) yang ditekan pengguna? Jelaskan solusi pemrograman yang lebih tepat untuk mengatasinya!'
+    },
+    {
+        id: 89, type: 'ESSAY',
+        q: 'Sebuah tim siswa merakit rangkaian sensor ultrasonik HC-SR04 dan motor servo untuk palang pintu parkir otomatis. Namun saat diuji coba, motor servo bergetar tidak menentu dan papan Arduino sering melakukan restart sendiri. Analisislah dua kemungkinan penyebab utama masalah kelistrikan tersebut dan cara mengatasinya!'
+    },
+    {
+        id: 90, type: 'ESSAY',
+        q: 'Jelaskan konsep berpikir komputasional (Dekomposisi, Pengenalan Pola, Abstraksi, dan Algoritma) apabila diterapkan untuk menyelesaikan proyek pembuatan sistem peringatan dini banjir berbasis sensor ketinggian air dan notifikasi Telegram/WhatsApp!'
+    },
+    {
+        id: 91, type: 'ESSAY',
+        q: 'Apa fungsi dari komunikasi serial (`Serial.begin(9600)` dan `Serial.println()`) dalam proses pembuatan prototipe sistem kendali? Jelaskan bagaimana fitur ini membantu siswa melakukan proses *debugging* (pencarian kesalahan) pada sensor!'
+    },
+    {
+        id: 92, type: 'ESSAY',
+        q: 'Jelaskan perbedaan arsitektur dan fungsi antara mikrokontroler standar (seperti Arduino Uno) dengan mikrokontroler berkemampuan IoT (seperti ESP32/NodeMCU ESP8266) dalam hal konektivitas jaringan dan pengelolaan daya!'
+    },
+    {
+        id: 93, type: 'ESSAY',
+        q: 'Perhatikan kode pembacaan sensor ultrasonik berikut yang mengalami kesalahan logika:\n```cpp\ndigitalWrite(trigPin, HIGH);\ndelayMicroseconds(10);\ndigitalWrite(trigPin, LOW);\ndurasi = pulseIn(echoPin, LOW);\njarak = durasi * 0.034;\n```\nIdentifikasilah minimal dua kesalahan pada potongan kode tersebut dan tuliskan perbaikannya agar pengukuran jarak menjadi akurat!'
+    },
+    {
+        id: 94, type: 'ESSAY',
+        q: 'Dalam rangkaian elektronika yang melibatkan sakelar tombol tekan (push button), jelaskan apa yang dimaksud dengan kondisi *floating* (mengambang) dan bagaimana cara kerja konfigurasi `INPUT_PULLUP` pada Arduino dalam mencegah kesalahan pembacaan status tombol!'
+    },
+    {
+        id: 95, type: 'ESSAY',
+        q: 'Bagaimana peran modul Relay ketika mikrokontroler Arduino (yang bekerja pada tegangan 5V DC) digunakan untuk menyalakan dan mematikan pompa air listrik rumah tangga (220V AC)? Jelaskan prinsip isolasi rangkaian pada komponen tersebut!'
+    },
+    {
+        id: 96, type: 'ESSAY',
+        q: 'Sebuah lampu jalan pintar dirancang menggunakan sensor cahaya LDR dan sensor gerak PIR secara bersamaan. Buatlah aturan logika keputusan (dalam bentuk kalimat terstruktur atau pseudocode `if-else`) agar lampu hanya menyala terang saat kondisi malam hari DAN ada kendaraan yang melintas!'
+    },
+    {
+        id: 97, type: 'ESSAY',
+        q: 'Jelaskan alur perjalanan data dalam ekosistem Internet of Things (IoT) mulai dari lapisan perangkat fisik (*Perception Layer*), lapisan jaringan (*Network Layer*), hingga lapisan aplikasi (*Application Layer*) dengan mengambil contoh aplikasi pemantau suhu ruang server!'
+    },
+    {
+        id: 98, type: 'ESSAY',
+        q: 'Perhatikan potongan kode perulangan berikut:\n```cpp\nfor (int sudut = 0; sudut <= 180; sudut += 30) {\n  myServo.write(sudut);\n  delay(500);\n}\n```\nBerapa kali perintah `myServo.write(sudut)` dieksekusi dalam satu kali perulangan `for` di atas, sebutkan urutan nilai sudutnya, dan hitung total waktu yang dibutuhkan!'
+    },
+    {
+        id: 99, type: 'ESSAY',
+        q: 'Mengapa aspek keamanan siber (*cybersecurity*) dan privasi data sangat krusial diperhatikan saat menerapkan perangkat IoT di lingkungan rumah tangga (seperti kunci pintu pintar dan kamera pengawas)? Berikan minimal tiga langkah pengamanan yang wajib diterapkan!'
+    },
+    {
+        id: 100, type: 'ESSAY',
+        q: 'Rancanglah sebuah ide solusi inovatif berbasis mikrokontroler dan IoT untuk mengatasi salah satu permasalahan nyata di lingkungan sekolah Anda (misalnya pengelolaan sampah, penghematan listrik kelas, atau presensi pintar). Uraikan nama alat, cara kerja singkat, serta manfaatnya bagi warga sekolah!'
+    }
+];
+
+/**
+ * ============================================================================
+ * STATE MANAJEMEN APLIKASI & MULTI-USER (KAPASITAS 30+ SISWA)
+ * ============================================================================
+ */
+let activeQuestions = [];
+let currentIdx = 0;
+let userAnswers = {}; // { questionId: selectedOptionIndexOrEssayText }
+let optionShuffleMap = {}; // Menyimpan urutan acak opsi per soal PG agar tidak tertebak
+let currentStudent = null;
+let timerInterval = null;
+let secondsElapsed = 0;
+let classRecords = []; // Menyimpan data seluruh siswa (mendukung 30+ user)
+let customWebhookUrl = "";
+
+// Inisialisasi awal
+window.onload = function() {
+    renderBankSoalPreview();
+    renderLeaderboard();
+};
+
+// Navigasi antar tampilan
+function switchView(viewName) {
+    ['viewLobby', 'viewGame', 'viewResult', 'viewTeacher'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+    });
+    if (viewName === 'lobby') document.getElementById('viewLobby').classList.remove('hidden');
+    if (viewName === 'game') document.getElementById('viewGame').classList.remove('hidden');
+    if (viewName === 'result') document.getElementById('viewResult').classList.remove('hidden');
+    if (viewName === 'teacher') {
+        renderLeaderboard();
+        document.getElementById('viewTeacher').classList.remove('hidden');
+    }
+}
+
+function openModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 3500);
+}
+
+// Acak array (Fisher-Yates)
+function shuffleArray(arr) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+}
+
+/**
+ * MEMULAI KUIS UNTUK SISWA
+ */
+function startGame(e) {
+    e.preventDefault();
+    const name = document.getElementById('studentName').value.trim();
+    const sClass = document.getElementById('studentClass').value;
+    const absent = document.getElementById('studentAbsent').value;
+    const mode = document.getElementById('quizMode').value;
+
+    if (!name) return;
+
+    currentStudent = {
+        id: 'USR-' + Date.now(),
+        nama: name,
+        kelas: sClass,
+        absen: absent,
+        status: 'Sedang Mengerjakan',
+        startTime: new Date()
+    };
+
+    // Filter soal sesuai mode
+    const pgList = BANK_SOAL.filter(item => item.type === 'PG');
+    const essayList = BANK_SOAL.filter(item => item.type === 'ESSAY');
+
+    if (mode === 'all') {
+        activeQuestions = [...pgList, ...essayList];
+    } else if (mode === 'pg') {
+        activeQuestions = [...pgList];
+    } else if (mode === 'essay') {
+        activeQuestions = [...essayList];
+    } else if (mode === 'quick') {
+        activeQuestions = [...shuffleArray(pgList).slice(0, 20), ...shuffleArray(essayList).slice(0, 5)];
+    }
+
+    // Siapkan pengacakan posisi opsi A, B, C, D pada setiap soal PG
+    userAnswers = {};
+    optionShuffleMap = {};
+    activeQuestions.forEach(q => {
+        if (q.type === 'PG') {
+            // Simpan indeks asli [0, 1, 2, 3] yang diacak
+            optionShuffleMap[q.id] = shuffleArray([0, 1, 2, 3]);
+        }
+    });
+
+    currentIdx = 0;
+    secondsElapsed = 0;
+
+    // Daftarkan ke daftar kelas aktif (live monitoring)
+    classRecords.unshift({
+        ...currentStudent,
+        benarPG: 0,
+        totalPG: activeQuestions.filter(q => q.type === 'PG').length,
+        skorPG: 0,
+        esaiDijawab: 0,
+        totalEsai: activeQuestions.filter(q => q.type === 'ESSAY').length,
+        durasi: '00:00',
+        jawabanPG: {},
+        jawabanEsai: {}
+    });
+
+    // Update UI Header Siswa
+    document.getElementById('avatarInitial').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('displayStudentName').textContent = name;
+    document.getElementById('displayStudentMeta').textContent = `Kelas ${sClass} • Absen ${absent}`;
+
+    startTimer();
+    buildNavigatorGrid();
+    renderQuestion();
+    switchView('game');
+    showToast(`Selamat mengerjakan, ${name}!`);
+}
+
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+        const secs = String(secondsElapsed % 60).padStart(2, '0');
+        document.getElementById('timerDisplay').textContent = `${mins}:${secs}`;
+    }, 1000);
+}
+
+function formatDuration(sec) {
+    const mins = String(Math.floor(sec / 60)).padStart(2, '0');
+    const secs = String(sec % 60).padStart(2, '0');
+    return `${mins}:${secs}`;
+}
+
+/**
+ * MERENDER SOAL SAAT INI
+ */
+function renderQuestion() {
+    const q = activeQuestions[currentIdx];
+    const total = activeQuestions.length;
+
+    // Update indikator progres
+    document.getElementById('progressCounter').textContent = `${currentIdx + 1} / ${total}`;
+    document.getElementById('progressBar').style.width = `${((currentIdx + 1) / total) * 100}%`;
+
+    const badge = document.getElementById('questionBadge');
+    const lenInfo = document.getElementById('lengthBalanceInfo');
+
+    if (q.type === 'PG') {
+        badge.textContent = `PILIHAN GANDA • SOAL #${q.id}`;
+        badge.className = 'px-3 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 text-xs font-bold border border-cyan-500/30';
+        lenInfo.textContent = 'Pengecoh lebih panjang dari kunci & posisi teracak';
+    } else {
+        badge.textContent = `ESAI ANALISIS • SOAL #${q.id}`;
+        badge.className = 'px-3 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30';
+        lenInfo.textContent = 'Uraikan jawaban secara jelas & sistematis';
+    }
+
+    // Format teks pertanyaan dan blok kode ```cpp ... ```
+    document.getElementById('questionContent').innerHTML = formatQuestionText(q.q);
+
+    const optContainer = document.getElementById('optionsContainer');
+    const essayContainer = document.getElementById('essayContainer');
+
+    if (q.type === 'PG') {
+        optContainer.classList.remove('hidden');
+        essayContainer.classList.add('hidden');
+        optContainer.innerHTML = '';
+
+        const shuffledIndices = optionShuffleMap[q.id];
+        const letters = ['A', 'B', 'C', 'D'];
+        const savedOriginalIdx = userAnswers[q.id];
+
+        shuffledIndices.forEach((origIdx, displayPos) => {
+            const isSelected = savedOriginalIdx === origIdx;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.onclick = () => selectOption(q.id, origIdx);
+            btn.className = `option-card w-full text-left p-4 rounded-xl border flex items-start gap-3.5 ${
+                isSelected
+                    ? 'bg-cyan-600/20 border-cyan-400 text-white shadow-lg shadow-cyan-500/10'
+                    : 'bg-slate-950/80 border-slate-800 hover:border-slate-600 text-slate-200'
+            }`;
+
+            btn.innerHTML = `
+                <span class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-sm ${
+                    isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-300'
+                }">
+                    ${letters[displayPos]}
+                </span>
+                <span class="pt-1 text-sm sm:text-base leading-snug">${escapeHtml(q.options[origIdx])}</span>
+            `;
+            optContainer.appendChild(btn);
+        });
+    } else {
+        optContainer.classList.add('hidden');
+        essayContainer.classList.remove('hidden');
+        const essayInput = document.getElementById('essayInput');
+        essayInput.value = userAnswers[q.id] || '';
+        updateWordCount(essayInput.value);
+
+        essayInput.oninput = function() {
+            userAnswers[q.id] = this.value;
+            updateWordCount(this.value);
+            updateLiveProgress();
+        };
+    }
+
+    // Atur tombol navigasi
+    document.getElementById('btnPrev').disabled = currentIdx === 0;
+    if (currentIdx === total - 1) {
+        document.getElementById('btnNext').classList.add('hidden');
+        document.getElementById('btnSubmitQuiz').classList.remove('hidden');
+    } else {
+        document.getElementById('btnNext').classList.remove('hidden');
+        document.getElementById('btnSubmitQuiz').classList.add('hidden');
+    }
+
+    updateNavigatorHighlight();
+}
+
+function formatQuestionText(raw) {
+    // Mendeteksi blok kode ```cpp ... ```
+    const parts = raw.split(/```cpp\n([\s\S]*?)```/g);
+    let html = '';
+    for (let i = 0; i < parts.length; i++) {
+        if (i % 2 === 0) {
+            if (parts[i].trim()) {
+                html += `<p>${escapeHtml(parts[i].trim()).replace(/\n/g, '<br>')}</p>`;
+            }
+        } else {
+            html += `<pre class="font-mono-code text-xs sm:text-sm bg-slate-950 border border-slate-800 text-emerald-300 p-4 rounded-xl overflow-x-auto leading-relaxed">${escapeHtml(parts[i].trim())}</pre>`;
+        }
+    }
+    return html;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function selectOption(questionId, originalOptionIdx) {
+    userAnswers[questionId] = originalOptionIdx;
+    updateLiveProgress();
+    renderQuestion();
+}
+
+function updateWordCount(text) {
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    document.getElementById('essayWordCount').textContent = `${words} kata`;
+}
+
+function updateLiveProgress() {
+    // Hitung skor PG sementara & jumlah terjawab
+    let correct = 0;
+    let totalPG = 0;
+    let answered = 0;
+    let essayDone = 0;
+
+    activeQuestions.forEach(q => {
+        const ans = userAnswers[q.id];
+        if (q.type === 'PG') {
+            totalPG++;
+            if (ans !== undefined) {
+                answered++;
+                if (ans === q.answer) correct++;
+            }
+        } else {
+            if (ans && ans.trim().length > 0) {
+                answered++;
+                essayDone++;
+            }
+        }
+    });
+
+    const scorePG = totalPG > 0 ? Math.round((correct / totalPG) * 100) : 0;
+    document.getElementById('liveScore').textContent = scorePG;
+    document.getElementById('answeredCount').textContent = `${answered}/${activeQuestions.length} Terjawab`;
+
+    // Sinkronkan ke record kelas aktif
+    const rec = classRecords.find(r => r.id === currentStudent.id);
+    if (rec) {
+        rec.benarPG = correct;
+        rec.skorPG = scorePG;
+        rec.esaiDijawab = essayDone;
+        rec.durasi = formatDuration(secondsElapsed);
+    }
+
+    updateNavigatorHighlight();
+}
+
+function prevQuestion() {
+    if (currentIdx > 0) {
+        currentIdx--;
+        renderQuestion();
+    }
+}
+
+function nextQuestion() {
+    if (currentIdx < activeQuestions.length - 1) {
+        currentIdx++;
+        renderQuestion();
+    }
+}
+
+function jumpToQuestion(idx) {
+    currentIdx = idx;
+    renderQuestion();
+}
+
+function toggleQuestionDrawer() {
+    const nav = document.getElementById('questionNavigator');
+    nav.classList.toggle('hidden');
+}
+
+function buildNavigatorGrid() {
+    const grid = document.getElementById('navGrid');
+    grid.innerHTML = '';
+    activeQuestions.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = `navBtn_${idx}`;
+        btn.textContent = idx + 1;
+        btn.onclick = () => jumpToQuestion(idx);
+        btn.className = 'py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition';
+        grid.appendChild(btn);
+    });
+}
+
+function updateNavigatorHighlight() {
+    activeQuestions.forEach((q, idx) => {
+        const btn = document.getElementById(`navBtn_${idx}`);
+        if (!btn) return;
+        const ans = userAnswers[q.id];
+        const isAnswered = q.type === 'PG' ? ans !== undefined : (ans && ans.trim().length > 0);
+
+        if (idx === currentIdx) {
+            btn.className = 'py-1.5 rounded-lg text-xs font-bold bg-cyan-500 text-slate-950 ring-2 ring-cyan-300';
+        } else if (isAnswered) {
+            btn.className = 'py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/80 text-white';
+        } else {
+            btn.className = 'py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:bg-slate-700';
+        }
+    });
+}
+
+/**
+ * KONFIRMASI & PENGIRIMAN HASIL KE SPREADSHEET
+ */
+function confirmSubmitQuiz() {
+    let answered = 0;
+    activeQuestions.forEach(q => {
+        const ans = userAnswers[q.id];
+        if (q.type === 'PG' && ans !== undefined) answered++;
+        if (q.type === 'ESSAY' && ans && ans.trim().length > 0) answered++;
+    });
+
+    document.getElementById('confirmSummaryText').textContent =
+        `Anda telah menjawab ${answered} dari ${activeQuestions.length} soal. Apakah Anda yakin ingin mengakhiri kuis dan mengirim jawaban ke Spreadsheet?`;
+    openModal('confirmModal');
+}
+
+async function finalizeSubmission() {
+    closeModal('confirmModal');
+    clearInterval(timerInterval);
+
+    let correctPG = 0;
+    let totalPG = 0;
+    let essayAnswered = 0;
+    let totalEssay = 0;
+    const detailPG = {};
+    const detailEssay = {};
+
+    activeQuestions.forEach(q => {
+        const ans = userAnswers[q.id];
+        if (q.type === 'PG') {
+            totalPG++;
+            const isRight = ans === q.answer;
+            if (isRight) correctPG++;
+            detailPG[`Soal_${q.id}`] = ans !== undefined ? `${q.options[ans]} (${isRight ? 'Benar' : 'Salah'})` : 'Kosong';
+        } else {
+            totalEssay++;
+            if (ans && ans.trim().length > 0) essayAnswered++;
+            detailEssay[`Esai_${q.id}`] = ans || '';
+        }
+    });
+
+    const finalScorePG = totalPG > 0 ? Math.round((correctPG / totalPG) * 100) : 0;
+    const durationStr = formatDuration(secondsElapsed);
+
+    // Update record siswa di tabel kelas
+    const rec = classRecords.find(r => r.id === currentStudent.id);
+    if (rec) {
+        rec.status = 'Selesai';
+        rec.benarPG = correctPG;
+        rec.skorPG = finalScorePG;
+        rec.esaiDijawab = essayAnswered;
+        rec.durasi = durationStr;
+        rec.jawabanPG = detailPG;
+        rec.jawabanEsai = detailEssay;
+    }
+
+    // Tampilkan layar hasil
+    document.getElementById('resultSubtitle').textContent =
+        `${currentStudent.nama} (${currentStudent.kelas} - Absen ${currentStudent.absen})`;
+    document.getElementById('resScorePG').textContent = finalScorePG;
+    document.getElementById('resCorrectPG').textContent = `${correctPG}/${totalPG}`;
+    document.getElementById('resEssayCount').textContent = `${essayAnswered}/${totalEssay}`;
+    document.getElementById('resDuration').textContent = durationStr;
+
+    switchView('result');
+
+    // Kirim ke Google Spreadsheet jika URL Apps Script telah diatur
+    const syncBox = document.getElementById('syncStatusBox');
+    const syncText = document.getElementById('syncStatusText');
+
+    if (customWebhookUrl) {
+        syncText.textContent = 'Mengirim data ke Google Spreadsheet...';
+        try {
+            await fetch(customWebhookUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nama: currentStudent.nama,
+                    kelas: currentStudent.kelas,
+                    absen: currentStudent.absen,
+                    skorPG: finalScorePG,
+                    benarPG: `${correctPG}/${totalPG}`,
+                    durasi: durationStr,
+                    jawabanPG: detailPG,
+                    jawabanEsai: detailEssay
+                })
+            });
+            syncBox.className = 'mt-5 p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-sm flex items-center justify-center gap-2 text-emerald-300';
+            syncText.textContent = 'Berhasil! Data nilai dan seluruh jawaban telah terkirim ke Google Spreadsheet.';
+        } catch (err) {
+            syncBox.className = 'mt-5 p-4 rounded-xl bg-amber-950/60 border border-amber-500/40 text-sm flex items-center justify-center gap-2 text-amber-300';
+            syncText.textContent = 'Tersimpan di rekap lokal kelas. Gunakan tombol Unduh CSV jika koneksi terhambat.';
+        }
+    } else {
+        syncBox.className = 'mt-5 p-4 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-sm flex items-center justify-center gap-2 text-cyan-200';
+        syncText.textContent = 'Data terekam di Rekap Kelas (30+ User). Silakan unduh CSV atau hubungkan URL Google Apps Script.';
+    }
+}
+
+function resetToLobby() {
+    document.getElementById('studentName').value = '';
+    document.getElementById('studentAbsent').value = '';
+    switchView('lobby');
+}
+
+/**
+ * ============================================================================
+ * FITUR DASHBOARD 30+ USER & EKSPOR SPREADSHEET (CSV / GOOGLE SHEETS)
+ * ============================================================================
+ */
+function simulate30Students() {
+    const sampleNames = [
+        "Aditya Pratama", "Aisyah Putri", "Alif Ramadhan", "Amanda Zahra", "Andika Saputra",
+        "Anisa Rahmawati", "Arya Wijaya", "Aulia Fitriani", "Bagas Kara", "Bella Safitri",
+        "Cahya Nugraha", "Citra Lestari", "Dani Setiawan", "Desi Ratnasari", "Dimas Anggara",
+        "Dina Marlina", "Eko Prasetyo", "Elsa Permata", "Fajar Nugroho", "Farah Nabila",
+        "Galih Permana", "Gita Gutawa", "Hendra Gunawan", "Indah Permatasari", "Irfan Hakim",
+        "Kartika Sari", "Lukman Hakim", "Maya Septiani", "Muhammad Rizky", "Nabila Syakieb"
+    ];
+
+    sampleNames.forEach((nama, i) => {
+        const benar = Math.floor(Math.random() * 25) + 55; // 55 - 79 benar
+        const skor = Math.round((benar / 80) * 100);
+        const mins = Math.floor(Math.random() * 20) + 25;
+        const secs = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+
+        classRecords.push({
+            id: 'SIM-' + i + '-' + Date.now(),
+            nama: nama,
+            kelas: `X-${(i % 6) + 1}`,
+            absen: i + 1,
+            status: 'Selesai',
+            benarPG: benar,
+            totalPG: 80,
+            skorPG: skor,
+            esaiDijawab: 20,
+            totalEsai: 20,
+            durasi: `${mins}:${secs}`,
+            jawabanPG: { Info: 'Data Simulasi 30 Siswa' },
+            jawabanEsai: { Info: '20 Esai Lengkap Terisi' }
+        });
+    });
+
+    renderLeaderboard();
+    showToast('30 Siswa simulasi berhasil masuk ke dalam arena kelas!');
+}
+
+function renderLeaderboard() {
+    const tbody = document.getElementById('leaderboardTableBody');
+    document.getElementById('statTotalUsers').textContent = `${classRecords.length} Siswa`;
+
+    if (classRecords.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="py-8 text-center text-slate-400">
+                    Belum ada siswa yang masuk. Klik <strong>"+ Simulasikan 30 Siswa Masuk"</strong> atau mulai kuis dari halaman siswa.
+                </td>
+            </tr>`;
+        document.getElementById('statAvgScore').textContent = '0';
+        document.getElementById('statMaxScore').textContent = '0';
+        return;
+    }
+
+    // Urutkan berdasarkan skor PG tertinggi
+    const sorted = [...classRecords].sort((a, b) => b.skorPG - a.skorPG);
+    const totalScore = sorted.reduce((acc, cur) => acc + cur.skorPG, 0);
+    document.getElementById('statAvgScore').textContent = Math.round(totalScore / sorted.length);
+    document.getElementById('statMaxScore').textContent = sorted[0].skorPG;
+
+    tbody.innerHTML = sorted.map((r, idx) => `
+        <tr class="hover:bg-slate-800/50 transition">
+            <td class="py-3 px-4 font-bold text-slate-400">${idx + 1}</td>
+            <td class="py-3 px-4 font-semibold text-white">${escapeHtml(r.nama)}</td>
+            <td class="py-3 px-4 text-slate-300">${r.kelas} • Absen ${r.absen}</td>
+            <td class="py-3 px-4">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    r.status === 'Selesai' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
+                }">${r.status}</span>
+            </td>
+            <td class="py-3 px-4 text-slate-300">${r.benarPG} / ${r.totalPG}</td>
+            <td class="py-3 px-4 font-bold text-cyan-400">${r.skorPG}</td>
+            <td class="py-3 px-4 text-slate-300">${r.esaiDijawab} / ${r.totalEsai}</td>
+            <td class="py-3 px-4 font-mono-code text-xs text-slate-400">${r.durasi}</td>
+        </tr>
+    `).join('');
+}
+
+// Ekspor CSV per siswa
+function downloadStudentCSV() {
+    if (!currentStudent) return;
+    const rec = classRecords.find(r => r.id === currentStudent.id);
+    if (!rec) return;
+
+    let csv = 'Nomor Soal,Tipe,Pertanyaan,Jawaban Siswa,Kunci / Status\n';
+    activeQuestions.forEach(q => {
+        const ans = userAnswers[q.id];
+        const cleanQ = `"${q.q.replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+        if (q.type === 'PG') {
+            const ansText = ans !== undefined ? `"${q.options[ans].replace(/"/g, '""')}"` : '"Tidak Dijawab"';
+            const status = ans === q.answer ? 'BENAR' : 'SALAH';
+            csv += `${q.id},Pilihan Ganda,${cleanQ},${ansText},${status}\n`;
+        } else {
+            const ansText = ans ? `"${ans.replace(/"/g, '""').replace(/\n/g, ' ')}"` : '"Tidak Dijawab"';
+            csv += `${q.id},Esai,${cleanQ},${ansText},Menunggu Koreksi Guru\n`;
+        }
+    });
+
+    triggerCSVDownload(csv, `Jawaban_${rec.nama.replace(/\s+/g, '_')}_${rec.kelas}.csv`);
+}
+
+// Ekspor CSV Seluruh Kelas (30+ User) siap buka di Excel / Google Sheets
+function exportAllClassCSV() {
+    if (classRecords.length === 0) {
+        showToast('Belum ada data siswa untuk diekspor.');
+        return;
+    }
+
+    let csv = 'Peringkat,Nama Siswa,Kelas,No Absen,Status,PG Benar,Total PG,Nilai PG,Esai Dijawab,Durasi,Ringkasan Jawaban Esai\n';
+    const sorted = [...classRecords].sort((a, b) => b.skorPG - a.skorPG);
+
+    sorted.forEach((r, i) => {
+        const esaiStr = `"${JSON.stringify(r.jawabanEsai).replace(/"/g, '""')}"`;
+        csv += `${i + 1},"${r.nama}",${r.kelas},${r.absen},${r.status},${r.benarPG},${r.totalPG},${r.skorPG},${r.esaiDijawab},${r.durasi},${esaiStr}\n`;
+    });
+
+    triggerCSVDownload(csv, `Rekap_Nilai_KKA_IoT_Kelas_${new Date().toISOString().slice(0,10)}.csv`);
+    showToast('File rekap CSV berhasil diunduh! Siap diunggah ke Google Spreadsheet.');
+}
+
+// Ekspor Bank Soal yang sudah diperbarui
+function exportBankSoalCSV() {
+    let csv = 'No,Tipe,Pertanyaan,Opsi A (Kunci Asli),Opsi B,Opsi C,Opsi D\n';
+    BANK_SOAL.forEach(q => {
+        const cleanQ = `"${q.q.replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+        if (q.type === 'PG') {
+            const opts = q.options.map(o => `"${o.replace(/"/g, '""')}"`).join(',');
+            csv += `${q.id},PG,${cleanQ},${opts}\n`;
+        } else {
+            csv += `${q.id},ESAI,${cleanQ},"","","",""\n`;
+        }
+    });
+    triggerCSVDownload(csv, 'Bank_Soal_KKA_100_Opsi_Seimbang.csv');
+}
+
+function triggerCSVDownload(csvContent, filename) {
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Simpan URL Webhook Google Apps Script
+function saveWebhookUrl() {
+    const val = document.getElementById('webhookUrlInput').value.trim();
+    customWebhookUrl = val;
+    document.getElementById('statWebhookStatus').textContent = val ? 'Terhubung ke Google Sheets ✓' : 'Mode CSV / Lokal';
+    closeModal('spreadsheetModal');
+    showToast(val ? 'URL Google Spreadsheet berhasil disimpan!' : 'URL dihapus, menggunakan mode unduh CSV.');
+}
+
+function copyAppsScript() {
+    const code = document.getElementById('appsScriptCode').textContent;
+    const textArea = document.createElement('textarea');
+    textArea.value = code;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    showToast('Kode Google Apps Script berhasil disalin!');
+}
+
+// Pratinjau 100 Soal Seimbang di Modal
+function renderBankSoalPreview() {
+    const keyword = (document.getElementById('searchQuestionInput')?.value || '').toLowerCase();
+    const container = document.getElementById('bankSoalList');
+    if (!container) return;
+
+    const filtered = BANK_SOAL.filter(item =>
+        item.q.toLowerCase().includes(keyword) ||
+        (item.options && item.options.some(o => o.toLowerCase().includes(keyword)))
+    );
+
+    container.innerHTML = filtered.map(item => {
+        if (item.type === 'PG') {
+            const letters = ['A', 'B', 'C', 'D'];
+            const optsHtml = item.options.map((opt, idx) => `
+                <div class="px-3 py-1.5 rounded-lg text-xs flex justify-between items-center ${
+                    idx === item.answer ? 'bg-emerald-950/80 border border-emerald-600/40 text-emerald-200' : 'bg-slate-950 text-slate-300'
+                }">
+                    <span><strong>${letters[idx]}.</strong> ${escapeHtml(opt)}</span>
+                    <span class="text-[10px] text-slate-500 ml-2">${opt.length} kar</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="p-4 rounded-xl bg-slate-800/50 border border-slate-700/70 space-y-2">
+                    <div class="text-xs font-bold text-cyan-400">Soal PG #${item.id}</div>
+                    <div class="text-slate-100 text-xs sm:text-sm">${escapeHtml(item.q).replace(/\n/g, '<br>')}</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">${optsHtml}</div>
+                </div>`;
+        } else {
+            return `
+                <div class="p-4 rounded-xl bg-indigo-950/30 border border-indigo-700/40 space-y-1.5">
+                    <div class="text-xs font-bold text-indigo-300">Soal Esai #${item.id}</div>
+                    <div class="text-slate-100 text-xs sm:text-sm">${escapeHtml(item.q).replace(/\n/g, '<br>')}</div>
+                </div>`;
+        }
+    }).join('');
+}
+</script>
+</body>
+</html>
