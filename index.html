@@ -396,55 +396,106 @@
 
                 <div>
                     <label class="block text-xs font-semibold uppercase text-cyan-400 mb-1">URL Google Apps Script Web App</label>
-                    <input type="url" id="webhookUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec"
-                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono-code focus:outline-none focus:border-cyan-500">
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="url" id="webhookUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec"
+                            class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono-code focus:outline-none focus:border-cyan-500">
+                        <button type="button" onclick="testSpreadsheetConnection()" id="btnTestConn" class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs whitespace-nowrap transition">
+                            ⚡ Tes Koneksi Sekarang
+                        </button>
+                    </div>
+                    <div id="testConnResult" class="hidden mt-2 p-3 rounded-xl text-xs border"></div>
                 </div>
 
                 <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-emerald-400">Kode Google Apps Script (Salin & Tempel di Extensions → Apps Script)</span>
+                        <span class="text-xs font-bold text-emerald-400">Kode Google Apps Script v2 (Mendukung Tes Koneksi & Anti-Gagal)</span>
                         <button onclick="copyAppsScript()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-white">Salin Kode</button>
                     </div>
-                    <pre id="appsScriptCode" class="text-[11px] font-mono-code text-slate-300 overflow-x-auto p-2 bg-slate-900 rounded-lg">function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = JSON.parse(e.postData.contents);
+                    <pre id="appsScriptCode" class="text-[11px] font-mono-code text-slate-300 overflow-x-auto p-2 bg-slate-900 rounded-lg">// 1. Fungsi Tes Koneksi saat URL dibuka atau diuji
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "terhubung",
+    pesan: "Google Apps Script KKA & IoT Aktif!"
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// 2. Fungsi Menerima Jawaban & Skor Siswa ke Google Sheet
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(10000); // Antrean aman untuk 30+ siswa kirim bersamaan
   
-  // Otomatis membuat judul kolom jika sheet masih kosong (tanpa perlu daftar nama siswa dulu)
-  if (sheet.getLastRow() === 0) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = {};
+    
+    if (e.parameter && e.parameter.payload) {
+      data = JSON.parse(e.parameter.payload);
+    } else if (e.postData && e.postData.contents) {
+      data = JSON.parse(e.postData.contents);
+    }
+    
+    // Buat header kolom otomatis jika sheet masih kosong
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        "Waktu Kirim",
+        "Nama Siswa",
+        "Kelas",
+        "No Absen",
+        "Skor PG (0-100)",
+        "Jumlah Benar",
+        "Jumlah Salah",
+        "Total Soal PG",
+        "Esai Terjawab",
+        "Durasi",
+        "Rincian Jawaban PG",
+        "Rincian Jawaban Esai"
+      ]);
+      sheet.getRange(1, 1, 1, 12).setFontWeight("bold").setBackground("#e2e8f0");
+    }
+    
+    // Format rincian PG & Esai agar mudah dibaca guru di sel Spreadsheet
+    var ringkasanPG = "";
+    if (data.jawabanPG) {
+      for (var k in data.jawabanPG) {
+        ringkasanPG += k + ": " + data.jawabanPG[k] + " | ";
+      }
+    }
+    
+    var ringkasanEsai = "";
+    if (data.jawabanEsai) {
+      for (var m in data.jawabanEsai) {
+        if (data.jawabanEsai[m]) {
+          ringkasanEsai += "[" + m + "] " + data.jawabanEsai[m] + "\n\n";
+        }
+      }
+    }
+    
     sheet.appendRow([
-      "Waktu Kirim",
-      "Nama Siswa",
-      "Kelas",
-      "No Absen",
-      "Jumlah Benar PG",
-      "Jumlah Salah PG",
-      "Total Soal PG",
-      "Nilai PG (0-100)",
-      "Esai Terjawab",
-      "Durasi Pengerjaan",
-      "Detail Jawaban PG",
-      "Detail Jawaban Esai"
+      new Date(),
+      data.nama || "Tanpa Nama",
+      data.kelas || "-",
+      data.absen || "-",
+      data.skorPG !== undefined ? data.skorPG : 0,
+      data.jumlahBenar || 0,
+      data.jumlahSalah || 0,
+      data.totalPG || 0,
+      data.esaiTerjawab || "0/0",
+      data.durasi || "00:00",
+      ringkasanPG || "-",
+      ringkasanEsai || "-"
     ]);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      nama: data.nama,
+      skor: data.skorPG
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
   }
-  
-  // Langsung mencatat nama siswa baru & hasil koreksi otomatis ke baris baru
-  sheet.appendRow([
-    new Date(),
-    data.nama,
-    data.kelas,
-    data.absen,
-    data.jumlahBenar,
-    data.jumlahSalah,
-    data.totalPG,
-    data.skorPG,
-    data.esaiTerjawab,
-    data.durasi,
-    JSON.stringify(data.jawabanPG),
-    JSON.stringify(data.jawabanEsai)
-  ]);
-  
-  return ContentService.createTextOutput(JSON.stringify({status: "success"}))
-    .setMimeType(ContentService.MimeType.JSON);
 }</pre>
                 </div>
             </div>
@@ -1479,6 +1530,9 @@ const BANK_SOAL = [
  * STATE MANAJEMEN APLIKASI & MULTI-USER (KAPASITAS 30+ SISWA)
  * ============================================================================
  */
+// TEMPELKAN URL GOOGLE APPS SCRIPT ANDA DI BAWAH INI AGAR OTOMATIS AKTIF UNTUK 30 SISWA:
+const DEFAULT_GSHEET_URL = "";
+
 let activeQuestions = [];
 let currentIdx = 0;
 let userAnswers = {}; // { questionId: selectedOptionIndexOrEssayText }
@@ -1487,10 +1541,16 @@ let currentStudent = null;
 let timerInterval = null;
 let secondsElapsed = 0;
 let classRecords = []; // Menyimpan data seluruh siswa (mendukung 30+ user)
-let customWebhookUrl = "";
+let customWebhookUrl = localStorage.getItem('kka_webhook_url') || DEFAULT_GSHEET_URL;
 
 // Inisialisasi awal
 window.onload = function() {
+    if (customWebhookUrl) {
+        const inputEl = document.getElementById('webhookUrlInput');
+        if (inputEl) inputEl.value = customWebhookUrl;
+        const statEl = document.getElementById('statWebhookStatus');
+        if (statEl) statEl.textContent = 'Terhubung ke Google Sheets ✓';
+    }
     renderBankSoalPreview();
     renderLeaderboard();
 };
@@ -1910,25 +1970,30 @@ async function finalizeSubmission() {
 
     if (customWebhookUrl) {
         syncText.textContent = 'Mengirim data & hasil koreksi otomatis ke Google Spreadsheet...';
+        const payloadObj = {
+            nama: currentStudent.nama,
+            kelas: currentStudent.kelas,
+            absen: currentStudent.absen,
+            jumlahBenar: correctPG,
+            jumlahSalah: wrongPG,
+            totalPG: totalPG,
+            skorPG: finalScorePG,
+            benarPG: `${correctPG}/${totalPG}`,
+            esaiTerjawab: `${essayAnswered}/${totalEssay}`,
+            durasi: durationStr,
+            jawabanPG: detailPG,
+            jawabanEsai: detailEssay
+        };
+
         try {
+            const formData = new URLSearchParams();
+            formData.append('payload', JSON.stringify(payloadObj));
+
             await fetch(customWebhookUrl, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({
-                    nama: currentStudent.nama,
-                    kelas: currentStudent.kelas,
-                    absen: currentStudent.absen,
-                    jumlahBenar: correctPG,
-                    jumlahSalah: wrongPG,
-                    totalPG: totalPG,
-                    skorPG: finalScorePG,
-                    benarPG: `${correctPG}/${totalPG}`,
-                    esaiTerjawab: `${essayAnswered}/${totalEssay}`,
-                    durasi: durationStr,
-                    jawabanPG: detailPG,
-                    jawabanEsai: detailEssay
-                })
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
             });
             syncBox.className = 'mt-5 p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-sm flex items-center justify-center gap-2 text-emerald-300';
             syncText.textContent = `Berhasil! Nama ${currentStudent.nama} & hasil (${correctPG} Benar / Nilai ${finalScorePG}) otomatis masuk ke Spreadsheet.`;
@@ -2102,9 +2167,70 @@ function triggerCSVDownload(csvContent, filename) {
 function saveWebhookUrl() {
     const val = document.getElementById('webhookUrlInput').value.trim();
     customWebhookUrl = val;
+    localStorage.setItem('kka_webhook_url', val);
     document.getElementById('statWebhookStatus').textContent = val ? 'Terhubung ke Google Sheets ✓' : 'Mode CSV / Lokal';
     closeModal('spreadsheetModal');
     showToast(val ? 'URL Google Spreadsheet berhasil disimpan!' : 'URL dihapus, menggunakan mode unduh CSV.');
+}
+
+// Fitur Tes Koneksi Langsung ke Google Spreadsheet
+async function testSpreadsheetConnection() {
+    const url = document.getElementById('webhookUrlInput').value.trim();
+    const resBox = document.getElementById('testConnResult');
+    const btn = document.getElementById('btnTestConn');
+
+    if (!url || !url.includes('script.google.com')) {
+        resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-rose-950/60 border-rose-500/40 text-rose-200';
+        resBox.textContent = '❌ Masukkan URL Google Apps Script yang valid terlebih dahulu (berawalan https://script.google.com/macros/s/... dan berakhiran /exec).';
+        resBox.classList.remove('hidden');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Menguji...';
+    resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-slate-800 border-slate-600 text-slate-200';
+    resBox.textContent = '⏳ Mengirim data uji coba ke Google Spreadsheet Anda...';
+    resBox.classList.remove('hidden');
+
+    const testPayload = {
+        nama: "[TES KONEKSI] Siswa Uji Coba",
+        kelas: "X-TES",
+        absen: "00",
+        skorPG: 94,
+        jumlahBenar: 75,
+        jumlahSalah: 5,
+        totalPG: 80,
+        esaiTerjawab: "20/20",
+        durasi: "01:00",
+        jawabanPG: { Soal_1: "pinMode(pin, OUTPUT); (Benar)", Soal_2: "Inisialisasi satu kali (Benar)" },
+        jawabanEsai: { Esai_81: "Contoh jawaban esai uji coba koneksi ke Google Sheet." }
+    };
+
+    try {
+        const formData = new URLSearchParams();
+        formData.append('payload', JSON.stringify(testPayload));
+
+        await fetch(url, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString()
+        });
+
+        // Simpan otomatis jika tes terkirim
+        customWebhookUrl = url;
+        localStorage.setItem('kka_webhook_url', url);
+        document.getElementById('statWebhookStatus').textContent = 'Terhubung ke Google Sheets ✓';
+
+        resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-emerald-950/70 border-emerald-500/40 text-emerald-200';
+        resBox.innerHTML = '✅ <strong>Sinyal terkirim!</strong> Silakan cek Google Spreadsheet Anda sekarang. Seharusnya muncul baris baru bernama <strong>"[TES KONEKSI] Siswa Uji Coba"</strong>.<br><span class="text-amber-300 mt-1 block">Jika belum muncul di Sheet, pastikan di Apps Script Anda sudah memilih <b>Deploy → Manage deployments → Edit (ikon pensil) → New version → Who has access: Anyone</b>.</span>';
+    } catch (e) {
+        resBox.className = 'mt-2 p-3 rounded-xl text-xs border bg-rose-950/60 border-rose-500/40 text-rose-200';
+        resBox.textContent = '❌ Gagal menghubungi server Google. Periksa koneksi internet atau pastikan URL berakhiran /exec.';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '⚡ Tes Koneksi Sekarang';
+    }
 }
 
 function copyAppsScript() {
