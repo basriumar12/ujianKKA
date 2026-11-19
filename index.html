@@ -190,7 +190,7 @@
                                 PILIHAN GANDA #1
                             </span>
                             <span class="text-xs text-slate-400" id="lengthBalanceInfo">
-                                Anti-Tebak Panjang Aktif
+                                Panjang Opsi Seimbang & Teracak
                             </span>
                         </div>
 
@@ -385,7 +385,7 @@
         <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto space-y-5">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-lg font-bold text-white">Integrasi Otomatis ke Google Spreadsheet</h3>
-                <button onclick="closeModal('spreadsheetModal')" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+                <button onclick="closeModal('spreadsheetModal')" class="text-slate-400 hover:text-white text-xl font-bold">×</button>
             </div>
 
             <div class="space-y-3 text-sm text-slate-300">
@@ -525,22 +525,22 @@ function doPost(e) {
 <script>
 /**
  * ============================================================================
- * DATABASE 100 SOAL KKA SMA KELAS X TEMA 4 (80 PG ANTI-TEBAK + 20 ESAI)
- * Seluruh 80 soal pilihan ganda telah diperbarui agar opsi pengecoh (salah)
- * memiliki kalimat yang lebih panjang & meyakinkan dibanding kunci jawaban,
- * sehingga siswa tidak dapat menebak jawaban benar dari opsi terpanjang.
+ * DATABASE 100 SOAL KKA SMA KELAS X TEMA 4 (80 PG PANJANG SEIMBANG + 20 ESAI)
+ * Seluruh 80 soal pilihan ganda telah disesuaikan panjang karakternya agar
+ * opsi A, B, C, dan D memiliki bobot kalimat yang setara (tidak paling pendek
+ * dan tidak paling panjang), ditambah pengacakan posisi otomatis.
  * ============================================================================
  */
 const BANK_SOAL = [
-    // --- 80 SOAL PILIHAN GANDA (OPSI PENGECUH LEBIH PANJANG DARI KUNCI) ---
+    // --- 80 SOAL PILIHAN GANDA (PANJANG KARAKTER OPSI SETARA & BERIMBANG) ---
     {
         id: 1, type: 'PG',
         q: 'Dalam pemrograman mikrokontroler Arduino, perintah dasar yang digunakan untuk mengonfigurasi arah kerja sebuah pin digital sebagai jalur keluaran sinyal adalah...',
         options: [
             'pinMode(pin, OUTPUT);',
-            'digitalWrite(pin, HIGH, OUTPUT_MODE); // mengatur pin keluaran tegangan tinggi',
-            'analogRead(pin, INPUT_OUTPUT_CONFIG); // membaca dan menetapkan jalur sinyal pin',
-            'serialBegin(pin, OUTPUT_STREAM_9600); // membuka jalur komunikasi keluaran serial'
+            'digitalWrite(pin, HIGH);',
+            'analogWrite(pin, 255);',
+            'serialBegin(pin, 9600);'
         ],
         answer: 0
     },
@@ -548,10 +548,10 @@ const BANK_SOAL = [
         id: 2, type: 'PG',
         q: 'Fungsi utama blok void setup() di dalam struktur program Arduino IDE saat papan mikrokontroler pertama kali mendapatkan suplai daya listrik adalah...',
         options: [
-            'Menjalankan inisialisasi konfigurasi pin satu kali saat awal menyala',
-            'Mengulang seluruh instruksi kontrol perangkat dan pembacaan sensor analog secara terus-menerus tanpa henti selama daya tersambung',
-            'Membaca nilai tegangan analog sensor secara berkala setiap detik sekaligus mengirimkan laporan ke jendela Serial Monitor komputer',
-            'Menghentikan eksekusi program utama secara otomatis ketika terjadi lonjakan arus listrik maupun penurunan tegangan pada papan sirkuit'
+            'Menjalankan inisialisasi konfigurasi pin dan serial satu kali saat awal menyala',
+            'Mengulang seluruh instruksi kontrol perangkat dan sensor secara terus-menerus',
+            'Membaca nilai tegangan analog sensor secara berkala setiap satu detik sekali',
+            'Menghentikan eksekusi program utama secara otomatis saat terjadi lonjakan arus'
         ],
         answer: 0
     },
@@ -560,9 +560,9 @@ const BANK_SOAL = [
         q: 'Fungsi blok void loop() pada kode pemrograman Arduino dirancang untuk mengeksekusi baris perintah secara berulang selama...',
         options: [
             'Papan mikrokontroler masih terhubung ke sumber daya listrik aktif',
-            'Proses kompilasi dan verifikasi sintaksis kode program sedang berlangsung di dalam perangkat lunak Arduino IDE komputer',
-            'Kabel komunikasi serial USB tipe B masih terpasang erat pada port komputer dan jendela Serial Monitor dalam keadaan terbuka',
-            'Tombol reset fisik pada papan sirkuit mikrokontroler ditekan dan ditahan oleh pengguna secara manual selama proses pengujian'
+            'Proses kompilasi kode program berlangsung di dalam aplikasi Arduino',
+            'Kabel komunikasi serial USB masih terpasang pada port komputer aktif',
+            'Tombol reset fisik pada papan sirkuit mikrokontroler ditekan pengguna'
         ],
         answer: 0
     },
@@ -571,9 +571,9 @@ const BANK_SOAL = [
         q: 'Perhatikan potongan kode program Arduino berikut ini:\n```cpp\nvoid setup() {\n  pinMode(13, OUTPUT);\n}\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}\n```\nPerilaku fisik komponen LED yang terhubung ke pin digital 13 berdasarkan kode tersebut adalah...',
         options: [
             'Menyala selama 1 detik lalu padam selama 1 detik secara berulang',
-            'Menyala redup perlahan menggunakan modulasi lebar pulsa lalu padam cepat setiap setengah detik secara bergantian',
-            'Menyala terus-menerus dengan tingkat kecerahan maksimal tanpa jeda padam selama papan mikrokontroler Arduino aktif',
-            'Padam selama 1 detik di awal program lalu berkedip sangat cepat sebanyak sepuluh kali sebelum berhenti total'
+            'Menyala redup perlahan lalu padam cepat setiap setengah detik sekali',
+            'Menyala terus-menerus dengan kecerahan penuh tanpa jeda padam',
+            'Padam selama 1 detik lalu berkedip cepat sepuluh kali berturut-turut'
         ],
         answer: 0
     },
@@ -582,9 +582,9 @@ const BANK_SOAL = [
         q: 'Peran penting fungsi delay(1000); dalam pengendalian lampu indikator LED pada rangkaian mikrokontroler adalah...',
         options: [
             'Memberikan jeda waktu 1 detik agar perubahan nyala terlihat mata',
-            'Mempercepat frekuensi kedipan lampu indikator hingga ribuan kali per detik agar cahaya tampak menyala stabil tanpa berkedip',
-            'Menurunkan tegangan keluaran pin digital menjadi setengah voltase standar untuk menghemat konsumsi daya baterai utama',
-            'Mengunci status logika pin digital agar tidak berubah-ubah meskipun sumber daya listrik utama terputus secara tiba-tiba'
+            'Mempercepat frekuensi kedipan lampu agar cahaya tampak stabil menyala',
+            'Menurunkan tegangan keluaran pin digital menjadi setengah voltase standar',
+            'Mengunci status logika pin digital agar tidak berubah saat daya terputus'
         ],
         answer: 0
     },
@@ -592,10 +592,10 @@ const BANK_SOAL = [
         id: 6, type: 'PG',
         q: 'Komponen resistor yang dipasang secara seri dengan lampu LED pada papan breadboard memiliki fungsi utama untuk...',
         options: [
-            'Membatasi aliran arus listrik agar LED tidak rusak terbakar',
-            'Meningkatkan tegangan sumber baterai dari 3 volt menjadi 5 volt agar cahaya lampu LED memancar jauh lebih terang',
-            'Menyimpan muatan listrik cadangan sementara waktu saat sumber daya utama dari kabel USB komputer terputus mendadak',
-            'Mengubah sinyal arus listrik searah (DC) menjadi arus bolak-balik (AC) berfrekuensi tinggi agar LED dapat berkedip'
+            'Membatasi aliran arus listrik agar lampu LED tidak rusak terbakar',
+            'Meningkatkan tegangan baterai dari 3 volt menjadi 5 volt stabil',
+            'Menyimpan muatan listrik cadangan sementara saat sumber daya terputus',
+            'Mengubah sinyal arus searah (DC) menjadi arus bolak-balik (AC)'
         ],
         answer: 0
     },
@@ -604,9 +604,9 @@ const BANK_SOAL = [
         q: 'Perbedaan mendasar antara sinyal digital dan sinyal analog dalam sistem kendali berbasis mikrokontroler terletak pada...',
         options: [
             'Sinyal digital memiliki dua kondisi logika, sinyal analog bervariasi kontinu',
-            'Sinyal digital selalu menggunakan tegangan tinggi 220 volt, sedangkan sinyal analog hanya menggunakan tegangan nol volt',
-            'Sinyal digital hanya dapat digunakan untuk membaca sensor suhu ruangan, sedangkan sinyal analog khusus untuk motor DC',
-            'Sinyal digital membutuhkan kabel penghantar serat optik khusus, sedangkan sinyal analog bekerja tanpa kabel penghantar'
+            'Sinyal digital memakai tegangan tinggi 220V, sinyal analog memakai tegangan nol',
+            'Sinyal digital khusus membaca sensor suhu, sinyal analog khusus motor DC',
+            'Sinyal digital butuh kabel serat optik, sinyal analog bekerja tanpa kabel'
         ],
         answer: 0
     },
@@ -615,9 +615,9 @@ const BANK_SOAL = [
         q: 'Sensor jarak ultrasonik tipe HC-SR04 mengukur jarak benda di depannya dengan cara memanfaatkan prinsip fisik berupa...',
         options: [
             'Pemancaran dan penerimaan pantulan gelombang suara frekuensi tinggi',
-            'Pengukuran perubahan intensitas cahaya inframerah tak kasatmata yang dipantulkan oleh permukaan benda berwarna gelap',
-            'Pendeteksian perubahan garis gaya medan magnetik bumi di sekitar permukaan objek logam maupun non-logam di depannya',
-            'Pembacaan selisih suhu panas radiasi termal yang dipancarkan oleh tubuh manusia maupun benda padat di dalam ruangan'
+            'Pengukuran perubahan intensitas cahaya inframerah pada permukaan gelap',
+            'Pendeteksian perubahan garis gaya medan magnetik bumi di sekitar objek',
+            'Pembacaan selisih suhu radiasi termal yang dipancarkan tubuh manusia'
         ],
         answer: 0
     },
@@ -626,9 +626,9 @@ const BANK_SOAL = [
         q: 'Fungsi masing-masing pin Trig (Trigger) dan pin Echo pada modul sensor jarak ultrasonik HC-SR04 adalah...',
         options: [
             'Trig memancarkan pulsa gelombang, Echo menerima sinyal pantulannya',
-            'Trig menyuplai daya positif 5 volt ke rangkaian sensor, sedangkan Echo menghubungkan jalur referensi ground negatif',
-            'Trig mengatur tingkat sensitivitas pembacaan jarak maksimal, sedangkan Echo menampilkan angka jarak ke layar LCD',
-            'Trig menyimpan data kalibrasi pabrik di dalam memori sensor, sedangkan Echo mereset mikrokontroler saat terjadi error'
+            'Trig menyuplai daya positif 5 volt, Echo menghubungkan jalur ground',
+            'Trig mengatur sensitivitas jarak maksimal, Echo menampilkan angka LCD',
+            'Trig menyimpan data kalibrasi pabrik, Echo mereset mikrokontroler'
         ],
         answer: 0
     },
@@ -637,9 +637,9 @@ const BANK_SOAL = [
         q: 'Dalam rumus perhitungan jarak sensor ultrasonik `jarak = durasi * 0.034 / 2;`, alasan nilai durasi harus dibagi angka 2 adalah...',
         options: [
             'Waktu tempuh gelombang mencakup perjalanan pergi menuju objek dan kembali',
-            'Kecepatan rambat gelombang suara di udara bebas berkurang menjadi setengahnya tepat saat mengenai permukaan benda padat',
-            'Sensor ultrasonik HC-SR04 memiliki dua buah transduser pemancar gelombang berbeda yang bekerja secara bergantian',
-            'Mikrokontroler membaca lebar pulsa listrik masuk dalam dua siklus detak jam prosesor yang terpisah satu sama lain'
+            'Kecepatan rambat gelombang suara berkurang menjadi setengah saat memantul',
+            'Sensor ultrasonik memiliki dua transduser pemancar yang bekerja bergantian',
+            'Mikrokontroler membaca lebar pulsa listrik dalam dua siklus jam terpisah'
         ],
         answer: 0
     },
@@ -648,9 +648,9 @@ const BANK_SOAL = [
         q: 'Perintah `Serial.begin(9600);` pada bagian awal program Arduino berfungsi untuk mengatur...',
         options: [
             'Kecepatan komunikasi data serial sebesar 9600 bit per detik',
-            'Frekuensi detak kristal prosesor utama mikrokontroler ATmega328P sebesar 9600 Hertz selama program dijalankan',
-            'Batas maksimal waktu tunggu pembacaan seluruh sensor analog maupun digital selama 9600 milidetik sebelum reset',
-            'Kapasitas alokasi memori penyimpanan variabel sementara (SRAM) sebesar 9600 byte untuk menampung data teks'
+            'Frekuensi detak kristal prosesor utama sebesar 9600 Hertz',
+            'Batas maksimal waktu tunggu pembacaan sensor selama 9600 milidetik',
+            'Kapasitas alokasi memori variabel sementara sebesar 9600 byte'
         ],
         answer: 0
     },
@@ -659,9 +659,9 @@ const BANK_SOAL = [
         q: 'Fungsi utama fitur Serial Monitor yang tersedia di dalam perangkat lunak Arduino IDE adalah...',
         options: [
             'Menampilkan data pembacaan sensor dan pesan debugging dari papan',
-            'Menggambar skema jalur rangkaian elektronika dan tata letak komponen breadboard secara tiga dimensi sebelum dirakit',
-            'Mengubah baris kode pemrograman bahasa C++ secara otomatis menjadi diagram alir visual untuk laporan dokumentasi',
-            'Mengukur besarnya konsumsi daya listrik dan arus baterai secara otomatis tanpa memerlukan kabel USB penghubung'
+            'Menggambar skema jalur rangkaian elektronika secara tiga dimensi',
+            'Mengubah kode pemrograman C++ menjadi diagram alir secara otomatis',
+            'Mengukur besarnya konsumsi daya listrik baterai tanpa kabel USB'
         ],
         answer: 0
     },
@@ -670,9 +670,9 @@ const BANK_SOAL = [
         q: 'Pada papan sirkuit prototipe (breadboard), pola koneksi lubang-lubang pada jalur tengah (terminal strip) terhubung secara...',
         options: [
             'Vertikal dalam kolom pendek berisi lima lubang terpisah parit tengah',
-            'Horizontal memanjang terus dari ujung paling kiri hingga ujung paling kanan papan sirkuit tanpa ada pemisah di tengah',
-            'Diagonal menyilang antar baris atas dan bawah untuk menghubungkan kutub positif dan kutub negatif secara otomatis',
-            'Terisolasi sepenuhnya satu sama lain sehingga memerlukan penyolderan timah panas pada setiap kaki komponen elektronik'
+            'Horizontal memanjang terus dari ujung kiri hingga ujung kanan papan',
+            'Diagonal menyilang antar baris untuk menghubungkan kutub positif negatif',
+            'Terisolasi satu sama lain sehingga memerlukan penyolderan timah panas'
         ],
         answer: 0
     },
@@ -681,9 +681,9 @@ const BANK_SOAL = [
         q: 'Jalur panjang bertanda garis merah (+) dan biru (-) di bagian tepi papan breadboard umumnya difungsikan sebagai...',
         options: [
             'Jalur distribusi sumber tegangan VCC dan referensi Ground bersama',
-            'Tempat khusus pemasangan kaki pin IC mikrokontroler utama berukuran besar agar tidak mengalami hubungan arus pendek',
-            'Konektor antena eksternal untuk memperkuat jangkauan sinyal komunikasi nirkabel Wi-Fi dan Bluetooth pada proyek IoT',
-            'Sekring pengaman otomatis berbahan logam yang akan memutus aliran listrik apabila terjadi kesalahan pemasangan kabel'
+            'Tempat pemasangan kaki IC mikrokontroler utama berukuran besar',
+            'Konektor antena eksternal untuk memperkuat jangkauan sinyal Wi-Fi',
+            'Sekring pengaman otomatis yang memutus arus saat terjadi korsleting'
         ],
         answer: 0
     },
@@ -692,9 +692,9 @@ const BANK_SOAL = [
         q: 'Kaki katoda pada komponen lampu LED standar yang memiliki panjang kaki berbeda ditandai dengan ciri fisik...',
         options: [
             'Ukuran kaki lebih pendek dan berada di sisi bodi datar',
-            'Ukuran kaki logam jauh lebih panjang dan terhubung langsung ke sumber tegangan positif baterai maupun pin 5V',
-            'Berwarna keemasan mengilap pada bagian ujung kaki logam dan memiliki lekukan melingkar sebagai penanda kutub positif',
-            'Dilapisi selongsong isolator plastik bening pada bagian pangkal badan lampu untuk mencegah panas berlebih saat menyala'
+            'Ukuran kaki lebih panjang dan terhubung ke tegangan positif',
+            'Berwarna keemasan mengilap pada bagian ujung kaki logamnya',
+            'Dilapisi selongsong isolator plastik pada pangkal badan lampu'
         ],
         answer: 0
     },
@@ -703,9 +703,9 @@ const BANK_SOAL = [
         q: 'Pin GND (Ground) pada papan Arduino Uno memiliki peran krusial dalam setiap rangkaian elektronika sebagai...',
         options: [
             'Titik referensi tegangan nol volt untuk melengkapi sirkuit arus',
-            'Sumber suplai tegangan positif utama sebesar lima volt yang digunakan untuk menggerakkan motor servo dan relay',
-            'Jalur masukan analog khusus untuk membaca sinyal gelombang radio frekuensi tinggi dari modul pemancar nirkabel',
-            'Pin cadangan pengaman yang otomatis aktif menyalurkan daya apabila terjadi kelebihan beban arus pada pin digital'
+            'Sumber suplai tegangan positif utama sebesar lima volt stabil',
+            'Jalur masukan analog khusus untuk membaca gelombang frekuensi radio',
+            'Pin cadangan pengaman yang menyalurkan daya saat beban berlebih'
         ],
         answer: 0
     },
@@ -714,9 +714,9 @@ const BANK_SOAL = [
         q: 'Rentang nilai keluaran yang dihasilkan oleh fungsi `analogRead()` pada pin input analog Arduino Uno (resolusi 10-bit) adalah...',
         options: [
             'Bilangan bulat mulai dari 0 hingga 1023',
-            'Bilangan bulat mulai dari 0 hingga 255 sesuai pengaturan lebar pulsa modulasi pada pin digital bertanda tilde',
-            'Nilai logika biner diskrit yang hanya terdiri dari angka 0 untuk kondisi mati dan angka 1 untuk kondisi menyala',
-            'Nilai bilangan desimal tegangan langsung mulai dari 0.00 volt hingga maksimal 12.00 voltase sumber adaptor'
+            'Bilangan bulat mulai dari 0 hingga 255',
+            'Nilai logika biner hanya 0 atau 1',
+            'Bilangan desimal tegangan 0.00 hingga 12.00'
         ],
         answer: 0
     },
@@ -725,9 +725,9 @@ const BANK_SOAL = [
         q: 'Fungsi `analogWrite(pin, nilai)` pada pin bertanda tilde (~) di papan Arduino bekerja dengan menerapkan teknik...',
         options: [
             'Pulse Width Modulation (PWM) dengan variasi nilai 0 hingga 255',
-            'Pengubahan langsung arus searah menjadi tegangan analog murni mulai dari 0 hingga 1023 volt pada pin keluaran',
-            'Pemotongan frekuensi gelombang suara ultrasonik menjadi sinyal digital biner berkecepatan tinggi di dalam prosesor',
-            'Penguatan arus listrik keluaran pin mikrokontroler hingga mampu memutar motor listrik industri tiga fasa secara langsung'
+            'Pengubahan langsung arus searah menjadi tegangan analog 0–1023 volt',
+            'Pemotongan frekuensi gelombang ultrasonik menjadi sinyal digital biner',
+            'Penguatan arus keluaran pin untuk memutar motor industri tiga fasa'
         ],
         answer: 0
     },
@@ -735,10 +735,10 @@ const BANK_SOAL = [
         id: 19, type: 'PG',
         q: 'Tipe data yang paling tepat digunakan dalam kode C++ Arduino untuk menyimpan hasil perhitungan jarak dalam satuan sentimeter berkoma adalah...',
         options: [
-            'float',
-            'boolean // menyimpan kondisi logika benar atau salah dengan koma desimal',
-            'char // menampung deretan angka pecahan presisi tinggi hingga 16 digit',
-            'byte // tipe data khusus bilangan desimal negatif dan positif berkapasitas besar'
+            'float (bilangan desimal)',
+            'boolean (logika biner)',
+            'char (karakter tunggal)',
+            'byte (bilangan bulat)'
         ],
         answer: 0
     },
@@ -747,9 +747,9 @@ const BANK_SOAL = [
         q: 'Struktur percabangan `if (jarak < 15)` dalam sistem palang pintu otomatis berbasis sensor ultrasonik berfungsi untuk...',
         options: [
             'Membuka palang saat objek terdeteksi pada jarak kurang dari 15 cm',
-            'Mengulang proses pembacaan sensor ultrasonik sebanyak 15 kali berturut-turut sebelum mengirimkan data ke Serial Monitor',
-            'Menunda gerakan motor servo penutup palang selama 15 detik penuh setelah kendaraan melintas melewati garis sensor',
-            'Menghapus seluruh memori penyimpanan variabel sementara apabila jarak benda yang terdeteksi melebihi batas 15 cm'
+            'Mengulang pembacaan sensor ultrasonik sebanyak 15 kali berturut-turut',
+            'Menunda gerakan motor servo penutup palang selama 15 detik penuh',
+            'Menghapus memori variabel sementara apabila jarak melebihi 15 cm'
         ],
         answer: 0
     },
@@ -758,9 +758,9 @@ const BANK_SOAL = [
         q: 'Konsep utama dari Internet of Things (IoT) dalam pengembangan perangkat cerdas modern adalah...',
         options: [
             'Konektivitas objek fisik ber-sensor ke jaringan internet untuk bertukar data',
-            'Penggunaan komputer server mainframe berkapasitas besar untuk mengolah dokumen administrasi perkantoran secara lokal',
-            'Pemasangan kabel jaringan serat optik berkecepatan tinggi di seluruh gedung sekolah untuk akses laboratorium komputer',
-            'Pembuatan aplikasi desain grafis dan animasi tiga dimensi berbasis peramban web modern tanpa koneksi perangkat keras'
+            'Penggunaan komputer server mainframe untuk mengolah dokumen administrasi kantor',
+            'Pemasangan kabel serat optik berkecepatan tinggi di seluruh gedung sekolah',
+            'Pembuatan aplikasi desain grafis tiga dimensi berbasis peramban web modern'
         ],
         answer: 0
     },
@@ -769,9 +769,9 @@ const BANK_SOAL = [
         q: 'Mikrokontroler ESP8266 (NodeMCU) dan ESP32 sering dipilih dibandingkan Arduino Uno untuk proyek IoT karena keunggulan utamanya berupa...',
         options: [
             'Tersedianya modul konektivitas Wi-Fi terintegrasi langsung pada chip',
-            'Kapasitas tegangan kerja langsung sebesar 220 volt arus bolak-balik tanpa memerlukan adaptor penurun tegangan tambahan',
-            'Jumlah pin input analog murni sebanyak lima puluh saluran terpisah yang dapat membaca sensor secara bersamaan',
-            'Kemampuan menjalankan sistem operasi desktop berbasis jendela grafis secara mandiri tanpa memerlukan monitor eksternal'
+            'Kapasitas tegangan kerja langsung sebesar 220 volt arus bolak-balik',
+            'Jumlah pin input analog murni sebanyak lima puluh saluran terpisah',
+            'Kemampuan menjalankan sistem operasi desktop grafis tanpa monitor'
         ],
         answer: 0
     },
@@ -780,9 +780,9 @@ const BANK_SOAL = [
         q: 'Peran protokol komunikasi MQTT dalam ekosistem perangkat Internet of Things berdaya rendah adalah...',
         options: [
             'Mengirim pesan telemetri ringan dengan mekanisme publish-subscribe',
-            'Mengamankan seluruh transaksi perbankan daring menggunakan enkripsi sertifikat ganda berlapis pada server pusat',
-            'Mengunduh dan memutar berkas video siaran langsung beresolusi tinggi dari server penyimpanan awan ke layar smartphone',
-            'Mengatur pembagian alamat IP dinamis secara otomatis pada seluruh komputer di dalam jaringan kabel lokal perkantoran'
+            'Mengamankan transaksi perbankan daring menggunakan sertifikat berlapis',
+            'Mengunduh dan memutar berkas video siaran langsung beresolusi tinggi',
+            'Mengatur pembagian alamat IP dinamis pada jaringan kabel lokal'
         ],
         answer: 0
     },
@@ -790,10 +790,10 @@ const BANK_SOAL = [
         id: 24, type: 'PG',
         q: 'Dalam arsitektur sistem IoT, komponen yang bertugas mengubah besaran fisik lingkungan (seperti suhu atau cahaya) menjadi sinyal listrik adalah...',
         options: [
-            'Sensor',
-            'Aktuator mekanik yang menggerakkan katup air dan motor listrik di lapangan',
-            'Gateway jaringan yang meneruskan paket data menuju server cloud internet',
-            'Broker MQTT yang mengatur antrean topik pesan antar perangkat pelanggan'
+            'Sensor pengindra lingkungan',
+            'Aktuator penggerak mekanik',
+            'Gateway penghubung jaringan',
+            'Broker pengatur antrean pesan'
         ],
         answer: 0
     },
@@ -802,9 +802,9 @@ const BANK_SOAL = [
         q: 'Komponen aktuator dalam sistem otomasi rumah pintar (smart home) memiliki peran utama untuk...',
         options: [
             'Mengubah sinyal perintah listrik menjadi tindakan gerakan atau aksi fisik',
-            'Mendeteksi perubahan tingkat suhu dan kelembapan udara di dalam ruangan secara berkala setiap beberapa detik sekali',
-            'Menyimpan seluruh riwayat catatan suhu harian ke dalam basis data server berbasis komputasi awan secara permanen',
-            'Menghubungkan jaringan router Wi-Fi di dalam rumah dengan menara pemancar sinyal seluler operator di luar ruangan'
+            'Mendeteksi perubahan tingkat suhu dan kelembapan udara di dalam ruangan',
+            'Menyimpan seluruh riwayat catatan suhu harian ke dalam basis data server',
+            'Menghubungkan jaringan router Wi-Fi rumah dengan pemancar seluler luar'
         ],
         answer: 0
     },
@@ -813,9 +813,9 @@ const BANK_SOAL = [
         q: 'Contoh pasangan komponen sensor dan aktuator yang paling tepat dalam sistem penyiram tanaman otomatis adalah...',
         options: [
             'Sensor kelembapan tanah dan pompa air mini',
-            'Motor servo sudut 180 derajat sebagai pendeteksi kadar air dan lampu indikator LED merah sebagai penyiram tanaman',
-            'Buzzer alarm suara frekuensi tinggi sebagai pengukur suhu tanah dan layar karakter LCD 16x2 sebagai penampung air',
-            'Modul Wi-Fi ESP8266 sebagai pengukur keasaman tanah dan kabel penghubung jumper male-to-female sebagai katup pipa'
+            'Motor servo 180 derajat dan lampu indikator LED',
+            'Buzzer alarm suara dan layar karakter LCD 16x2',
+            'Modul Wi-Fi ESP8266 dan kabel penghubung jumper'
         ],
         answer: 0
     },
@@ -824,9 +824,9 @@ const BANK_SOAL = [
         q: 'Fungsi komponen Relay dalam rangkaian mikrokontroler Arduino saat mengendalikan lampu listrik rumah tangga (220V AC) adalah...',
         options: [
             'Sakelar elektromagnetik pemisah tegangan rendah DC dan tegangan tinggi AC',
-            'Adaptor penurun tegangan listrik PLN 220V AC menjadi tegangan searah 5V DC untuk menyuplai daya papan Arduino Uno',
-            'Penstabil frekuensi gelombang arus bolak-balik 50Hz agar cahaya lampu penerangan ruangan tidak berkedip saat menyala',
-            'Penyimpan daya listrik cadangan berkapasitas besar apabila aliran listrik utama dari jaringan PLN mengalami pemadaman'
+            'Adaptor penurun tegangan listrik PLN 220V AC menjadi tegangan 5V DC',
+            'Penstabil frekuensi gelombang arus bolak-balik 50Hz agar lampu awet',
+            'Penyimpan daya listrik cadangan berkapasitas besar saat listrik padam'
         ],
         answer: 0
     },
@@ -835,9 +835,9 @@ const BANK_SOAL = [
         q: 'Motor servo mikro (seperti SG90) berbeda dengan motor DC biasa karena motor servo mampu dikendalikan berdasarkan...',
         options: [
             'Posisi sudut putaran spesifik antara 0 hingga 180 derajat',
-            'Kecepatan putaran poros terus-menerus hingga puluhan ribu rotasi per menit tanpa memerlukan sinyal pulsa kontrol',
-            'Perubahan kutub medan magnet permanen secara acak tanpa memerlukan sinyal modulasi lebar pulsa dari mikrokontroler',
-            'Tegangan listrik arus bolak-balik tiga fasa yang dihubungkan langsung dari stopkontak dinding ke kabel sinyal servo'
+            'Kecepatan putaran poros terus-menerus tanpa sinyal pulsa kontrol',
+            'Perubahan kutub medan magnet permanen secara acak tanpa modulasi',
+            'Tegangan listrik arus bolak-balik tiga fasa dari stopkontak dinding'
         ],
         answer: 0
     },
@@ -846,9 +846,9 @@ const BANK_SOAL = [
         q: 'Library `#include <Servo.h>` perlu ditambahkan di baris paling atas kode program Arduino ketika kita ingin...',
         options: [
             'Menggunakan fungsi siap pakai untuk mengatur sudut putaran motor servo',
-            'Menghubungkan papan mikrokontroler Arduino Uno dengan jaringan internet melalui modul kabel Ethernet LAN lokal',
-            'Membaca data suhu udara sekitar dan tingkat kelembapan relatif dari modul sensor digital tipe DHT11 maupun DHT22',
-            'Menampilkan grafik gelombang sinyal analog secara real-time pada layar monitor komputer melalui komunikasi serial'
+            'Menghubungkan papan mikrokontroler Arduino dengan jaringan Ethernet LAN',
+            'Membaca data suhu udara sekitar dan kelembapan dari sensor digital DHT11',
+            'Menampilkan grafik gelombang sinyal analog pada layar monitor komputer'
         ],
         answer: 0
     },
@@ -857,9 +857,9 @@ const BANK_SOAL = [
         q: 'Fungsi perintah `pulseIn(echoPin, HIGH);` pada pembacaan sensor ultrasonik adalah untuk...',
         options: [
             'Mengukur lamanya durasi pulsa logika HIGH pada pin Echo dalam mikrodetik',
-            'Mengirimkan gelombang suara ultrasonik frekuensi 40 kHz selama satu detik penuh ke udara bebas di depan sensor',
-            'Mengubah konfigurasi pin Echo menjadi jalur keluaran tegangan konstan sebesar 5 volt selama program berjalan',
-            'Menghitung secara otomatis jumlah objek bergerak yang melintas di depan sensor ultrasonik setiap satu menit sekali'
+            'Mengirimkan gelombang suara ultrasonik frekuensi 40 kHz selama satu detik',
+            'Mengubah konfigurasi pin Echo menjadi keluaran tegangan konstan 5 volt',
+            'Menghitung otomatis jumlah objek bergerak yang melintas di depan sensor'
         ],
         answer: 0
     },
@@ -867,10 +867,10 @@ const BANK_SOAL = [
         id: 31, type: 'PG',
         q: 'Jika sensor ultrasonik mencatat waktu pantul gelombang (`durasi`) sebesar 1000 mikrodetik, maka jarak benda dari sensor (kecepatan suara 0,034 cm/µs) adalah...',
         options: [
-            '17 cm',
-            '34 cm (hasil perkalian langsung tanpa dibagi dua arah pantulan)',
-            '68 cm (hasil perkalian dua kali jarak tempuh gelombang suara)',
-            '8,5 cm (hasil pembagian empat kali siklus gelombang ultrasonik)'
+            '17,0 cm',
+            '34,0 cm',
+            '68,0 cm',
+            '8,50 cm'
         ],
         answer: 0
     },
@@ -879,9 +879,9 @@ const BANK_SOAL = [
         q: 'Kesalahan sintaksis paling umum yang menyebabkan proses kompilasi kode di Arduino IDE gagal dengan pesan "expected \';\' before..." adalah...',
         options: [
             'Lupa menuliskan tanda titik koma di akhir baris perintah',
-            'Salah memilih jenis kabel data USB penghubung antara port komputer laptop dan konektor papan sirkuit mikrokontroler',
-            'Posisi pemasangan kaki anoda positif dan kaki katoda negatif lampu LED tertukar pada jalur lubang papan breadboard',
-            'Tegangan baterai sumber daya eksternal kurang dari batas standar operasional minimal papan mikrokontroler Arduino'
+            'Salah memilih jenis kabel data USB penghubung ke komputer',
+            'Posisi pemasangan kaki anoda dan katoda lampu LED tertukar',
+            'Tegangan baterai sumber daya eksternal kurang dari standar'
         ],
         answer: 0
     },
@@ -890,9 +890,9 @@ const BANK_SOAL = [
         q: 'Tombol "Verify" (ikon tanda centang) pada aplikasi Arduino IDE memiliki fungsi utama untuk...',
         options: [
             'Memeriksa kesalahan kode dan mengompilasinya menjadi kode mesin',
-            'Mengirimkan file program hasil kompilasi secara langsung ke dalam memori flash papan mikrokontroler melalui kabel USB',
-            'Menghapus seluruh baris kode program lama yang masih tersimpan di dalam memori EEPROM papan mikrokontroler Arduino',
-            'Membuka jendela layar komunikasi serial secara otomatis untuk memantau keluaran teks pembacaan sensor dari perangkat'
+            'Mengirimkan file program hasil kompilasi ke memori papan Arduino',
+            'Menghapus seluruh baris kode program lama di dalam memori EEPROM',
+            'Membuka jendela layar komunikasi serial untuk memantau data sensor'
         ],
         answer: 0
     },
@@ -901,9 +901,9 @@ const BANK_SOAL = [
         q: 'Langkah wajib sebelum menekan tombol "Upload" di Arduino IDE agar program berhasil masuk ke papan mikrokontroler adalah...',
         options: [
             'Memilih jenis board dan nomor port serial COM yang sesuai',
-            'Melepaskan seluruh kabel jumper sensor dan aktuator dari pin digital maupun pin analog papan mikrokontroler terlebih dahulu',
-            'Memutuskan koneksi jaringan internet Wi-Fi pada komputer agar tidak mengganggu proses transfer data melalui kabel USB',
-            'Menekan dan menahan tombol reset pada papan Arduino secara terus-menerus selama proses pengunggahan kode berlangsung'
+            'Melepaskan seluruh kabel jumper sensor dari pin papan Arduino',
+            'Memutuskan koneksi jaringan internet Wi-Fi pada komputer laptop',
+            'Menekan dan menahan tombol reset pada papan Arduino saat unggah'
         ],
         answer: 0
     },
@@ -911,10 +911,10 @@ const BANK_SOAL = [
         id: 35, type: 'PG',
         q: 'Operator perbandingan logika "sama dengan" dalam kondisi `if` bahasa pemrograman Arduino C++ ditulis menggunakan simbol...',
         options: [
-            '==',
-            '= (operator penugasan nilai ke dalam sebuah variabel memori)',
-            '!= (operator pembanding pertidaksamaan antara dua buah nilai)',
-            '<= (operator pembanding nilai lebih kecil atau sama dengan)'
+            '== (sama dengan)',
+            '= (penugasan nilai)',
+            '!= (tidak sama)',
+            '<= (kurang dari)'
         ],
         answer: 0
     },
@@ -923,9 +923,9 @@ const BANK_SOAL = [
         q: 'Operator logika `&&` (AND) dalam pernyataan `if (suhu > 30 && kelembapan < 40)` akan bernilai benar (TRUE) apabila...',
         options: [
             'Kedua kondisi perbandingan terpenuhi secara bersamaan',
-            'Salah satu kondisi saja terpenuhi sementara kondisi perbandingan lainnya bernilai salah pada saat pengujian berlangsung',
-            'Kedua kondisi perbandingan bernilai salah secara bersamaan pada waktu pembacaan sensor suhu dan kelembapan dilakukan',
-            'Nilai pembacaan suhu udara lebih kecil dari 30 derajat dan nilai kelembapan udara lebih besar dari 40 persen'
+            'Salah satu kondisi terpenuhi sementara kondisi lain salah',
+            'Kedua kondisi perbandingan bernilai salah secara bersamaan',
+            'Nilai suhu lebih kecil dari 30 dan kelembapan di atas 40'
         ],
         answer: 0
     },
@@ -934,9 +934,9 @@ const BANK_SOAL = [
         q: 'Komponen Buzzer aktif dalam rangkaian sistem peringatan dini banjir berfungsi untuk menghasilkan keluaran berupa...',
         options: [
             'Sinyal bunyi peringatan ketika diberikan tegangan logika HIGH',
-            'Cahaya kilatan berwarna merah terang berintensitas tinggi saat ketinggian permukaan air mencapai batas siaga satu',
-            'Getaran mekanik kuat untuk menggerakkan katup pintu air bendungan secara otomatis ketika debit air sungai meningkat',
-            'Tampilan angka ketinggian permukaan air dalam satuan sentimeter secara digital pada layar penampil karakter'
+            'Cahaya kilatan merah berintensitas tinggi saat air mencapai batas',
+            'Getaran mekanik kuat untuk menggerakkan katup pintu air bendungan',
+            'Tampilan angka ketinggian permukaan air pada layar penampil LCD'
         ],
         answer: 0
     },
@@ -945,9 +945,9 @@ const BANK_SOAL = [
         q: 'Sensor LDR (Light Dependent Resistor) bekerja berdasarkan perubahan nilai hambatan listrik yang dipengaruhi oleh...',
         options: [
             'Intensitas cahaya yang mengenai permukaan sensor',
-            'Perubahan suhu panas lingkungan di sekitar area pemasangan komponen elektronika di dalam maupun di luar ruangan',
-            'Tekanan udara barometrik atmosfer di dalam ruangan tertutup maupun di area terbuka pada ketinggian tertentu',
-            'Getaran mekanik atau guncangan fisik yang terjadi pada permukaan papan sirkuit prototipe saat perangkat bergerak'
+            'Perubahan suhu panas lingkungan di sekitar area sensor',
+            'Tekanan udara barometrik atmosfer di dalam ruangan tertutup',
+            'Getaran mekanik atau guncangan fisik pada papan sirkuit'
         ],
         answer: 0
     },
@@ -956,9 +956,9 @@ const BANK_SOAL = [
         q: 'Pada rangkaian lampu penerangan jalan otomatis berbasis sensor LDR, lampu akan diperintahkan menyala oleh mikrokontroler ketika...',
         options: [
             'Intensitas cahaya menurun di bawah ambang batas gelap',
-            'Nilai pembacaan intensitas cahaya matahari meningkat tajam pada siang hari yang terik di sekitar tiang lampu jalan',
-            'Suhu udara di sekitar kotak panel kontrol lampu jalan mengalami kenaikan secara drastis akibat panas matahari',
-            'Tidak ada pergerakan kendaraan bermotor maupun pejalan kaki yang terdeteksi melintas di bawah tiang lampu jalan'
+            'Nilai pembacaan cahaya matahari meningkat tajam di siang hari',
+            'Suhu udara di sekitar panel kontrol mengalami kenaikan drastis',
+            'Tidak ada pergerakan kendaraan melintas di bawah tiang lampu'
         ],
         answer: 0
     },
@@ -967,9 +967,9 @@ const BANK_SOAL = [
         q: 'Sensor PIR (Passive Infrared) sangat efektif digunakan pada sistem keamanan ruangan pintar karena kemampuannya dalam mendeteksi...',
         options: [
             'Perubahan radiasi panas inframerah dari pergerakan tubuh',
-            'Jarak presisi dinding pembatas ruangan menggunakan pantulan gelombang suara ultrasonik berfrekuensi tinggi',
-            'Kadar konsentrasi gas karbon monoksida dan kepulan asap kebakaran di dalam ruangan tertutup secara dini',
-            'Intensitas suara langkah kaki penyusup melalui getaran frekuensi akustik yang merambat di udara ruangan'
+            'Jarak presisi dinding ruangan menggunakan gelombang ultrasonik',
+            'Kadar konsentrasi gas karbon monoksida dan asap kebakaran',
+            'Intensitas suara langkah kaki penyusup melalui getaran udara'
         ],
         answer: 0
     },
@@ -978,9 +978,9 @@ const BANK_SOAL = [
         q: 'Keuntungan utama penggunaan simulator elektronika daring seperti Tinkercad Circuits atau Wokwi sebelum merakit komponen fisik adalah...',
         options: [
             'Mencegah kerusakan komponen akibat salah pengkabelan dan hemat biaya',
-            'Menghasilkan produk perangkat keras fisik siap jual secara instan tanpa perlu melakukan proses perakitan komponen',
-            'Meningkatkan kecepatan clock prosesor mikrokontroler fisik secara permanen hingga dua kali lipat dari standar pabrik',
-            'Menggantikan kebutuhan penulisan bahasa pemrograman C++ dengan perintah suara manusia secara otomatis tanpa kode'
+            'Menghasilkan produk perangkat keras fisik siap jual secara instan',
+            'Meningkatkan kecepatan clock prosesor mikrokontroler fisik permanen',
+            'Menggantikan penulisan bahasa pemrograman C++ dengan perintah suara'
         ],
         answer: 0
     },
@@ -989,9 +989,9 @@ const BANK_SOAL = [
         q: 'Perhatikan kode berikut:\n```cpp\nfor (int i = 0; i < 5; i++) {\n  digitalWrite(8, HIGH);\n  delay(200);\n  digitalWrite(8, LOW);\n  delay(200);\n}\n```\nJumlah kedipan lampu LED pada pin 8 yang terjadi dalam satu kali siklus perulangan `for` tersebut adalah...',
         options: [
             '5 kali kedipan',
-            '4 kali kedipan karena indeks perulangan dimulai dari angka nol hingga empat',
-            '6 kali kedipan karena kondisi batas kurang dari lima ikut dieksekusi satu kali lagi',
-            '10 kali kedipan akibat gabungan waktu tunda HIGH dan LOW masing-masing lima kali'
+            '4 kali kedipan',
+            '6 kali kedipan',
+            '10 kali kedipan'
         ],
         answer: 0
     },
@@ -1000,9 +1000,9 @@ const BANK_SOAL = [
         q: 'Fungsi utama platform Cloud Dashboard IoT (seperti Blynk, ThingSpeak, atau Arduino IoT Cloud) bagi pengguna akhir adalah...',
         options: [
             'Memantau data sensor dan mengendalikan aktuator jarak jauh via internet',
-            'Menyolder kaki-kaki komponen elektronik pada papan PCB secara otomatis melalui jaringan komunikasi nirkabel Wi-Fi',
-            'Menambah kapasitas memori RAM dan penyimpanan flash fisik pada papan mikrokontroler Arduino Uno secara daring',
-            'Mengubah sinyal listrik arus searah dari baterai menjadi listrik arus bolak-balik bertegangan tinggi secara otomatis'
+            'Menyolder kaki-kaki komponen elektronik pada papan PCB secara otomatis',
+            'Menambah kapasitas memori RAM dan penyimpanan flash papan Arduino Uno',
+            'Mengubah sinyal listrik arus searah baterai menjadi listrik arus bolak-balik'
         ],
         answer: 0
     },
@@ -1011,9 +1011,9 @@ const BANK_SOAL = [
         q: 'Potensiometer yang sering digunakan dalam latihan input analog Arduino sebenarnya merupakan komponen elektronika berupa...',
         options: [
             'Resistor variabel yang nilai hambatannya dapat diubah dengan diputar',
-            'Kapasitor keramik non-polar yang berfungsi menyimpan muatan listrik sementara waktu untuk menstabilkan tegangan',
-            'Transistor penguat sinyal arus searah berdaya besar yang digunakan untuk menggerakkan motor DC secara langsung',
-            'Dioda penyearah gelombang penuh yang mengubah arus bolak-balik menjadi sinyal digital bertegangan rendah'
+            'Kapasitor keramik non-polar penyimpan muatan listrik sementara waktu',
+            'Transistor penguat sinyal arus searah untuk menggerakkan motor DC',
+            'Dioda penyearah gelombang penuh pengubah arus bolak-balik ke searah'
         ],
         answer: 0
     },
@@ -1022,9 +1022,9 @@ const BANK_SOAL = [
         q: 'Fungsi `map(nilai, 0, 1023, 0, 180);` dalam program kendali motor servo menggunakan potensiometer bertujuan untuk...',
         options: [
             'Mengonversi rentang bacaan analog 0–1023 menjadi sudut 0–180 derajat',
-            'Menampilkan peta koordinat lokasi geografis GPS perangkat IoT secara langsung ke dalam layar monitor komputer',
-            'Membatasi tegangan masukan dari kaki tengah potensiometer agar tidak melebihi batas aman 180 milivolt pada pin',
-            'Mengulang proses pembacaan posisi putaran tuas potensiometer secara otomatis sebanyak 1023 kali dalam satu detik'
+            'Menampilkan peta koordinat lokasi geografis GPS ke layar monitor',
+            'Membatasi tegangan masukan potensiometer agar tidak melebihi batas aman',
+            'Mengulang proses pembacaan posisi tuas potensiometer sebanyak 1023 kali'
         ],
         answer: 0
     },
@@ -1033,9 +1033,9 @@ const BANK_SOAL = [
         q: 'Dalam pemrograman mikrokontroler, penggunaan kata kunci `const int ledPin = 9;` lebih disarankan dibandingkan `int ledPin = 9;` karena...',
         options: [
             'Melindungi nomor pin agar tidak berubah dan menghemat memori',
-            'Membuat arus listrik yang mengalir keluar melalui pin digital 9 menjadi jauh lebih stabil dan bebas dari gangguan',
-            'Memungkinkan pin digital 9 menerima sinyal input analog dan mengeluarkan sinyal PWM secara bersamaan dalam satu waktu',
-            'Menghapus kebutuhan pemasangan komponen resistor pembatas arus pada rangkaian lampu indikator LED di papan breadboard'
+            'Membuat arus listrik yang mengalir keluar melalui pin menjadi stabil',
+            'Memungkinkan pin digital 9 menerima sinyal input analog bersamaan',
+            'Menghapus kebutuhan pemasangan resistor pembatas arus pada LED'
         ],
         answer: 0
     },
@@ -1044,9 +1044,9 @@ const BANK_SOAL = [
         q: 'Apa yang terjadi pada papan Arduino Uno apabila pin 5V dihubungkan langsung ke pin GND menggunakan kabel jumper tanpa beban?',
         options: [
             'Terjadi hubungan arus pendek (short circuit) yang merusak regulator',
-            'Lampu indikator daya bawaan pada papan sirkuit menyala dua kali lebih terang dari kondisi operasional normal',
-            'Kecepatan komunikasi data serial melalui port USB meningkat secara otomatis menjadi dua kali lipat lebih cepat',
-            'Seluruh kode program yang tersimpan di dalam memori mikrokontroler terhapus bersih kembali ke setelan awal pabrik'
+            'Lampu indikator daya bawaan papan menyala dua kali lebih terang',
+            'Kecepatan komunikasi data serial port USB meningkat dua kali lipat',
+            'Seluruh kode program di dalam memori mikrokontroler terhapus bersih'
         ],
         answer: 0
     },
@@ -1055,9 +1055,9 @@ const BANK_SOAL = [
         q: 'Tampilan layar LCD 16x2 dengan modul I2C lebih banyak dipilih dibandingkan LCD 16x2 standar karena...',
         options: [
             'Hanya membutuhkan dua jalur data (SDA dan SCL) sehingga hemat pin',
-            'Mampu menampilkan gambar animasi dan siaran video berwarna dengan resolusi definisi tinggi secara langsung',
-            'Tidak memerlukan sumber suplai tegangan listrik 5 volt maupun jalur ground dari papan mikrokontroler utama',
-            'Memiliki ukuran dimensi layar sepuluh kali lebih lebar untuk menampilkan grafik batang dan diagram lingkaran kompleks'
+            'Mampu menampilkan gambar animasi dan siaran video berwarna HD',
+            'Tidak memerlukan sumber suplai tegangan listrik 5 volt dari papan',
+            'Memiliki ukuran dimensi layar sepuluh kali lebih lebar untuk grafik'
         ],
         answer: 0
     },
@@ -1066,9 +1066,9 @@ const BANK_SOAL = [
         q: 'Pada komunikasi antarmuka I2C di papan Arduino Uno, dua pin khusus yang digunakan untuk jalur data dan detak waktu adalah...',
         options: [
             'Pin A4 (SDA) dan Pin A5 (SCL)',
-            'Pin Digital D0 (RX) dan Pin Digital D1 (TX) yang terhubung dengan komunikasi serial USB',
-            'Pin Digital D9 (PWM) dan Pin Digital D10 (SS) yang digunakan untuk antarmuka protokol SPI',
-            'Pin Analog A0 (IN) dan Pin Analog A1 (OUT) sebagai jalur masukan tegangan sensor eksternal'
+            'Pin D0 (RX) dan Pin D1 (TX)',
+            'Pin D9 (PWM) dan Pin D10 (SS)',
+            'Pin A0 (IN) dan Pin A1 (OUT)'
         ],
         answer: 0
     },
@@ -1077,9 +1077,9 @@ const BANK_SOAL = [
         q: 'Kelemahan utama penggunaan fungsi `delay()` berdurasi lama dalam sistem multitasking mikrokontroler adalah...',
         options: [
             'Menghentikan seluruh eksekusi kode sehingga input lain tidak terbaca',
-            'Menyebabkan chip prosesor mikrokontroler mengalami panas berlebih hingga merusak komponen secara permanen',
-            'Menghapus seluruh nilai variabel global dan konstanta yang telah disimpan di dalam memori RAM sebelumnya',
-            'Mengubah konfigurasi pin INPUT menjadi OUTPUT secara acak selama waktu tunggu jeda program berlangsung'
+            'Menyebabkan chip prosesor mikrokontroler mengalami panas berlebih',
+            'Menghapus seluruh nilai variabel global dan konstanta di memori RAM',
+            'Mengubah konfigurasi pin INPUT menjadi OUTPUT secara acak saat jeda'
         ],
         answer: 0
     },
@@ -1087,10 +1087,10 @@ const BANK_SOAL = [
         id: 51, type: 'PG',
         q: 'Alternatif fungsi non-blocking di Arduino untuk mengatur jeda waktu tanpa menghentikan pembacaan sensor lainnya adalah menggunakan...',
         options: [
-            'millis()',
-            'delayMicroseconds() // menunda seluruh eksekusi baris program dalam satuan mikrodetik',
-            'pulseIn() // menunggu hingga terjadi perubahan pulsa sinyal pada pin masukan sensor',
-            'analogReference() // mengatur tegangan referensi maksimal untuk konversi sinyal analog'
+            'millis() (penghitung waktu berjalan)',
+            'delayMicroseconds() (jeda mikrodetik)',
+            'pulseIn() (pengukur lebar pulsa)',
+            'analogReference() (tegangan referensi)'
         ],
         answer: 0
     },
@@ -1099,9 +1099,9 @@ const BANK_SOAL = [
         q: 'Sensor DHT11 atau DHT22 dalam proyek stasiun cuaca mini berbasis IoT berfungsi untuk mengukur parameter lingkungan berupa...',
         options: [
             'Suhu udara sekitar dan tingkat kelembapan relatif',
-            'Kecepatan hembusan angin dan arah mata angin menggunakan baling-baling berputar yang terhubung ke sensor optik',
-            'Tekanan udara barometrik atmosfer serta ketinggian lokasi stasiun cuaca dari permukaan air laut secara presisi',
-            'Intensitas curah hujan harian dan tingkat derajat keasaman (pH) air hujan yang turun di area terbuka'
+            'Kecepatan hembusan angin dan arah mata angin utama',
+            'Tekanan udara barometrik atmosfer serta ketinggian lokasi',
+            'Intensitas curah hujan harian dan derajat keasaman air'
         ],
         answer: 0
     },
@@ -1110,9 +1110,9 @@ const BANK_SOAL = [
         q: 'Dalam berpikir komputasional (Computational Thinking), proses memecah masalah proyek IoT kompleks menjadi bagian-bagian kecil seperti modul sensor, logika, dan aktuator disebut...',
         options: [
             'Dekomposisi (Decomposition)',
-            'Abstraksi (Abstraction) yaitu menyaring detail komponen yang tidak relevan dari sistem',
-            'Pengenalan Pola (Pattern Recognition) yaitu mencari kesamaan data dari pembacaan sensor',
-            'Algoritma (Algorithm Design) yaitu menyusun urutan langkah kode program secara sistematis'
+            'Abstraksi (Abstraction)',
+            'Pengenalan Pola (Pattern)',
+            'Algoritma (Algorithm)'
         ],
         answer: 0
     },
@@ -1121,9 +1121,9 @@ const BANK_SOAL = [
         q: 'Tahap berpikir komputasional berupa penyusunan langkah-langkah logis terurut sebelum menuliskan baris kode program Arduino disebut...',
         options: [
             'Perancangan Algoritma',
-            'Dekomposisi Masalah menjadi sub-modul perangkat keras sensor dan aktuator terpisah',
-            'Abstraksi Komponen dengan menyembunyikan kerumitan skema rangkaian elektronika internal',
-            'Kalibrasi Perangkat keras sensor agar nilai pembacaan sesuai dengan standar pengukuran'
+            'Dekomposisi Masalah',
+            'Abstraksi Komponen',
+            'Kalibrasi Perangkat'
         ],
         answer: 0
     },
@@ -1132,9 +1132,9 @@ const BANK_SOAL = [
         q: 'Pada rangkaian tombol tekan (push button) yang menggunakan konfigurasi `pinMode(2, INPUT_PULLUP);`, status logika pin saat tombol TIDAK ditekan adalah...',
         options: [
             'HIGH (bernilai 1 karena terhubung resistor pull-up internal)',
-            'LOW (bernilai 0 karena jalur pin digital terhubung langsung menuju jalur referensi Ground negatif papan sirkuit)',
-            'FLOATING (nilai logika acak berubah-ubah antara 0 dan 1 akibat gangguan gelombang elektromagnetik di sekitarnya)',
-            'ANALOG (menghasilkan nilai tegangan setengah konstan sebesar 2,5 volt pada pin digital mikrokontroler)'
+            'LOW (bernilai 0 karena jalur pin terhubung langsung ke Ground)',
+            'FLOATING (nilai logika acak berubah-ubah antara angka 0 dan 1)',
+            'ANALOG (menghasilkan tegangan setengah konstan sebesar 2,5 volt)'
         ],
         answer: 0
     },
@@ -1143,9 +1143,9 @@ const BANK_SOAL = [
         q: 'Tujuan utama penggunaan resistor pull-up atau pull-down pada rangkaian sakelar push button digital adalah untuk...',
         options: [
             'Mencegah kondisi floating (ambang tidak menentu) saat tombol dilepas',
-            'Memperbesar bunyi klik mekanik sakelar ketika tombol ditekan oleh jari pengguna agar terdengar lebih jelas',
-            'Menurunkan tegangan sumber utama 5V menjadi 1V agar komponen tombol tekan memiliki umur pakai yang lebih awet',
-            'Mempercepat proses verifikasi dan kompilasi kode program di dalam perangkat lunak Arduino IDE komputer'
+            'Memperbesar bunyi klik mekanik sakelar ketika tombol ditekan jari',
+            'Menurunkan tegangan sumber utama 5V menjadi 1V agar tombol awet',
+            'Mempercepat proses verifikasi dan kompilasi kode di Arduino IDE'
         ],
         answer: 0
     },
@@ -1153,10 +1153,10 @@ const BANK_SOAL = [
         id: 57, type: 'PG',
         q: 'Perhatikan kode berikut:\n```cpp\nint nilai = 75;\nif (nilai >= 80) {\n  Serial.println("A");\n} else if (nilai >= 70) {\n  Serial.println("B");\n} else {\n  Serial.println("C");\n}\n```\nKarakter huruf yang akan dicetak pada jendela Serial Monitor berdasarkan kode tersebut adalah...',
         options: [
-            'B',
-            'A (karena nilai 75 dianggap memenuhi syarat kondisi percabangan pertama)',
-            'C (karena program selalu mengeksekusi blok else di bagian paling akhir)',
-            'AB (karena kedua blok kondisi pertama dan kedua bernilai benar bersamaan)'
+            'Huruf B',
+            'Huruf A',
+            'Huruf C',
+            'Huruf AB'
         ],
         answer: 0
     },
@@ -1165,9 +1165,9 @@ const BANK_SOAL = [
         q: 'Dalam keamanan sistem Internet of Things (IoT Security), risiko utama apabila perangkat cerdas menggunakan kata sandi bawaan pabrik (default password) adalah...',
         options: [
             'Perangkat mudah diretas dan diambil alih kendalinya oleh pihak asing',
-            'Konsumsi daya baterai perangkat cerdas menjadi dua kali lebih boros dibandingkan saat menggunakan sandi buatan sendiri',
-            'Kecepatan pengiriman paket data sensor menuju server komputasi awan menurun secara drastis hingga terputus',
-            'Sensor ultrasonik kehilangan tingkat akurasi dalam mengukur jarak benda padat yang berada tepat di depannya'
+            'Konsumsi daya baterai perangkat cerdas menjadi dua kali lebih boros',
+            'Kecepatan pengiriman paket data sensor menuju server cloud menurun',
+            'Sensor ultrasonik kehilangan tingkat akurasi dalam mengukur jarak'
         ],
         answer: 0
     },
@@ -1176,9 +1176,9 @@ const BANK_SOAL = [
         q: 'Apa fungsi utama dari API Key atau Auth Token dalam menghubungkan papan ESP8266/ESP32 ke platform cloud IoT?',
         options: [
             'Kode autentikasi unik agar perangkat terhubung ke akun yang tepat',
-            'Penguat sinyal gelombang radio pemancar Wi-Fi agar mampu menjangkau router yang berada pada jarak ratusan meter',
-            'Penerjemah otomatis bahasa pemrograman C++ menjadi bahasa Python di dalam server penyimpanan data berbasis awan',
-            'Memori penyimpan cadangan data pembacaan sensor sementara apabila koneksi internet di ruangan terputus mendadak'
+            'Penguat sinyal gelombang radio Wi-Fi untuk menjangkau router jauh',
+            'Penerjemah otomatis bahasa C++ menjadi bahasa Python di server',
+            'Memori penyimpan cadangan data sensor saat koneksi internet putus'
         ],
         answer: 0
     },
@@ -1187,9 +1187,9 @@ const BANK_SOAL = [
         q: 'Komponen kapasitor elektrolit (elco) yang sering dipasang paralel pada jalur suplai daya motor servo dalam rangkaian Arduino berfungsi untuk...',
         options: [
             'Meredam lonjakan penurunan tegangan sesaat saat motor mulai bergerak',
-            'Meningkatkan sudut putaran maksimal poros motor servo standar hingga mampu berputar penuh sebesar 360 derajat',
-            'Mengubah sinyal digital modulasi lebar pulsa (PWM) menjadi sinyal gelombang suara berfrekuensi tinggi pada motor',
-            'Memutus aliran arus listrik secara permanen apabila kumparan di dalam motor servo mengalami panas berlebih'
+            'Meningkatkan sudut putaran maksimal poros motor servo hingga 360 derajat',
+            'Mengubah sinyal digital PWM menjadi sinyal gelombang suara motor',
+            'Memutus aliran arus listrik permanen apabila kumparan motor panas'
         ],
         answer: 0
     },
@@ -1198,9 +1198,9 @@ const BANK_SOAL = [
         q: 'Perbedaan utama antara mikrokontroler (seperti Arduino Uno) dan mikroprosesor (seperti Raspberry Pi) terletak pada...',
         options: [
             'Mikrokontroler fokus kontrol hardware real-time, mikroprosesor komputer mini',
-            'Mikrokontroler wajib dihubungkan dengan monitor layar besar HDMI, sedangkan mikroprosesor beroperasi tanpa layar',
-            'Mikrokontroler hanya dapat bekerja menggunakan sumber baterai AA, sedangkan mikroprosesor wajib listrik PLN 220V',
-            'Mikrokontroler hanya dapat diprogram satu kali dari pabrik, sedangkan mikroprosesor dapat diprogram ulang berkali-kali'
+            'Mikrokontroler wajib memakai monitor HDMI, mikroprosesor beroperasi tanpa layar',
+            'Mikrokontroler hanya memakai baterai AA, mikroprosesor wajib listrik PLN 220V',
+            'Mikrokontroler diprogram satu kali dari pabrik, mikroprosesor diprogram berulang'
         ],
         answer: 0
     },
@@ -1209,9 +1209,9 @@ const BANK_SOAL = [
         q: 'Kabel jumper tipe Male-to-Female pada perakitan prototipe elektronika digunakan untuk menghubungkan...',
         options: [
             'Lubang pin header Arduino dengan kaki pin jantan pada modul sensor',
-            'Dua buah lubang komponen pada papan breadboard yang berada di kolom dan baris yang berbeda satu sama lain',
-            'Konektor port USB tipe B pada papan Arduino dengan port USB tipe A yang terdapat pada komputer atau laptop',
-            'Terminal kutub baterai kotak 9 volt langsung menuju konektor motor listrik industri arus bolak-balik tiga fasa'
+            'Dua buah lubang komponen pada papan breadboard di kolom berbeda',
+            'Konektor port USB tipe B pada papan Arduino dengan port USB laptop',
+            'Terminal kutub baterai kotak 9 volt langsung ke motor listrik AC'
         ],
         answer: 0
     },
@@ -1220,9 +1220,9 @@ const BANK_SOAL = [
         q: 'Jika sebuah proyek tempat sampah pintar otomatis gagal membuka tutupnya meskipun tangan sudah didekatkan ke sensor ultrasonik, langkah debugging pertama yang paling logis adalah...',
         options: [
             'Memeriksa bacaan jarak di Serial Monitor dan mengecek kabel daya servo',
-            'Mengganti seluruh unit komputer laptop yang digunakan untuk menulis kode program dengan perangkat komputer yang baru',
-            'Membeli modul sensor ultrasonik baru sebanyak lima buah sekaligus tanpa memeriksa koneksi kabel jumper terlebih dahulu',
-            'Menghapus perangkat lunak Arduino IDE lalu menginstal ulang seluruh sistem operasi komputer dari awal kembali'
+            'Mengganti seluruh unit komputer laptop yang digunakan menulis program',
+            'Membeli modul sensor ultrasonik baru tanpa memeriksa koneksi kabel',
+            'Menghapus perangkat lunak Arduino IDE lalu menginstal ulang sistem'
         ],
         answer: 0
     },
@@ -1231,9 +1231,9 @@ const BANK_SOAL = [
         q: 'Dalam pemrograman Arduino, variabel yang dideklarasikan di bagian paling atas di luar fungsi `setup()` maupun `loop()` disebut...',
         options: [
             'Variabel Global yang dapat diakses oleh seluruh fungsi dalam program',
-            'Variabel Lokal sementara yang hanya berlaku dan dapat dikenali di dalam satu blok kurung kurawal fungsi tertentu',
-            'Variabel Konstanta Statis yang nilainya otomatis terhapus dari memori RAM tepat setelah satu detik program berjalan',
-            'Variabel Sistem Bawaan pabrik yang tidak diperbolehkan digunakan untuk menyimpan angka hasil pembacaan sensor'
+            'Variabel Lokal sementara yang hanya dikenali di dalam satu blok fungsi',
+            'Variabel Konstanta Statis yang nilainya otomatis terhapus setelah 1 detik',
+            'Variabel Sistem Bawaan pabrik yang dilarang menyimpan angka sensor'
         ],
         answer: 0
     },
@@ -1242,9 +1242,9 @@ const BANK_SOAL = [
         q: 'Perintah `Serial.print(jarak);` berbeda dengan `Serial.println(jarak);` pada tampilan Serial Monitor karena...',
         options: [
             'Serial.println menambahkan baris baru (enter) setelah mencetak nilai',
-            'Serial.print mencetak nilai sensor dalam format angka biner nol dan satu, sedangkan Serial.println dalam format teks',
-            'Serial.println hanya dapat bekerja dengan baik pada pengaturan kecepatan komunikasi baud rate di atas 115200 bps',
-            'Serial.print mengirimkan data pembacaan melalui jaringan Wi-Fi, sedangkan Serial.println melalui kabel data USB'
+            'Serial.print mencetak angka biner nol satu, Serial.println format teks',
+            'Serial.println hanya bekerja pada pengaturan baud rate di atas 115200',
+            'Serial.print mengirim data lewat jaringan Wi-Fi, Serial.println lewat USB'
         ],
         answer: 0
     },
@@ -1253,9 +1253,9 @@ const BANK_SOAL = [
         q: 'Komponen LED RGB (Red, Green, Blue) memiliki empat buah kaki karena...',
         options: [
             'Terdiri dari tiga elemen warna terpisah dengan satu kaki bersama',
-            'Membutuhkan empat sumber tegangan baterai yang terpisah agar ketiga warna cahaya dapat menyala secara bersamaan',
-            'Dilengkapi sensor cahaya internal di dalam kapsulnya untuk menyesuaikan tingkat kecerahan warna secara otomatis',
-            'Memiliki dua buah kaki logam cadangan apabila salah satu kaki utama patah saat dipasang pada lubang breadboard'
+            'Membutuhkan empat sumber tegangan baterai yang terpisah untuk menyala',
+            'Dilengkapi sensor cahaya internal untuk menyesuaikan kecerahan warna',
+            'Memiliki dua buah kaki logam cadangan apabila salah satu kaki patah'
         ],
         answer: 0
     },
@@ -1264,9 +1264,9 @@ const BANK_SOAL = [
         q: 'Teknologi komunikasi nirkabel jarak pendek berdaya sangat rendah yang sering dipakai pada perangkat wearable IoT (seperti jam tangan pintar) adalah...',
         options: [
             'Bluetooth Low Energy (BLE)',
-            'Jaringan Komunikasi Satelit Geostasioner orbit tinggi untuk transmisi antar benua',
-            'Kabel Jaringan Serat Optik Bawah Laut berkecepatan transfer terabit per detik',
-            'Pemancar Gelombang Radio Modulasi Amplitudo (AM) jarak jauh berdaya ribuan watt'
+            'Satelit Geostasioner Orbit',
+            'Kabel Serat Optik Bawah Laut',
+            'Pemancar Gelombang Radio AM'
         ],
         answer: 0
     },
@@ -1275,9 +1275,9 @@ const BANK_SOAL = [
         q: 'Teknologi LoRa (Long Range) dalam penerapan Smart Agriculture (pertanian pintar) di lahan perkebunan luas dipilih karena keunggulannya berupa...',
         options: [
             'Jangkauan transmisi hingga beberapa kilometer dengan daya sangat hemat',
-            'Kemampuan mengirimkan siaran video langsung beresolusi 4K dari kamera kebun tanpa jeda waktu sedikit pun',
-            'Kecepatan pengunduhan berkas data hingga gigabit per detik di dalam ruangan beton bertulang yang tertutup rapat',
-            'Tidak memerlukan komponen antena pemancar maupun penerima sama sekali pada stasiun gerbang gateway utama'
+            'Kemampuan mengirimkan siaran video langsung beresolusi 4K tanpa jeda',
+            'Kecepatan pengunduhan berkas hingga gigabit per detik di gedung beton',
+            'Tidak memerlukan komponen antena pemancar maupun penerima di lapangan'
         ],
         answer: 0
     },
@@ -1286,9 +1286,9 @@ const BANK_SOAL = [
         q: 'Penerapan sistem parkir pintar (Smart Parking) di pusat perbelanjaan memanfaatkan kombinasi sensor ultrasonik dan indikator LED di setiap slot parkir untuk...',
         options: [
             'Mendeteksi ketersediaan ruang parkir kosong dan memandu pengemudi',
-            'Mencuci bagian bawah rangka kendaraan secara otomatis setiap kali mobil berhenti tepat di atas permukaan sensor',
-            'Mengisi daya baterai mobil listrik secara nirkabel dari jarak jauh melalui pancaran gelombang suara ultrasonik',
-            'Mengunci keempat roda kendaraan secara otomatis apabila pengemudi memarkirkan mobil melebihi batas waktu maksimal'
+            'Mencuci bagian bawah rangka kendaraan secara otomatis saat berhenti',
+            'Mengisi daya baterai mobil listrik secara nirkabel dari jarak jauh',
+            'Mengunci keempat roda kendaraan apabila parkir melebihi batas waktu'
         ],
         answer: 0
     },
@@ -1296,10 +1296,10 @@ const BANK_SOAL = [
         id: 70, type: 'PG',
         q: 'Perhatikan pernyataan berikut:\n`int sisa = 17 % 5;`\nNilai yang tersimpan di dalam variabel `sisa` setelah operasi modulo tersebut dijalankan adalah...',
         options: [
-            '2',
-            '3 (hasil pembagian bilangan bulat 17 dibagi dengan 5)',
-            '5 (nilai pembagi utama dalam operasi aritmatika modulo)',
-            '12 (hasil pengurangan langsung antara angka 17 dan 5)'
+            'Angka 2',
+            'Angka 3',
+            'Angka 5',
+            'Angka 12'
         ],
         answer: 0
     },
@@ -1308,9 +1308,9 @@ const BANK_SOAL = [
         q: 'Fungsi `digitalWrite(trigPin, LOW); delayMicroseconds(2);` sebelum memberikan pulsa HIGH selama 10 mikrodetik pada sensor HC-SR04 bertujuan untuk...',
         options: [
             'Memastikan pin bersih pada logika rendah sebelum memicu pulsa ultrasonik',
-            'Mematikan seluruh suplai daya listrik sensor selama dua menit penuh agar komponen transduser tidak cepat panas',
-            'Mengubah frekuensi gelombang suara ultrasonik menjadi pancaran sinar inframerah berdaya rendah secara otomatis',
-            'Menghapus seluruh catatan data jarak sebelumnya yang tersimpan di dalam memori internal EEPROM sensor jarak'
+            'Mematikan seluruh suplai daya listrik sensor selama dua menit penuh',
+            'Mengubah frekuensi gelombang suara menjadi pancaran sinar inframerah',
+            'Menghapus seluruh catatan data jarak sebelumnya di memori internal'
         ],
         answer: 0
     },
@@ -1319,9 +1319,9 @@ const BANK_SOAL = [
         q: 'Batas jarak pengukuran efektif sensor ultrasonik HC-SR04 secara spesifikasi teknis umumnya berada pada rentang...',
         options: [
             '2 cm hingga 400 cm dengan permukaan objek pantul relatif datar',
-            '0,1 milimeter hingga 5 milimeter khusus dirancang untuk mengukur ketebalan selembar kertas maupun pelat tipis',
-            '10 meter hingga 500 meter di ruang terbuka untuk mendeteksi ketinggian pesawat terbang maupun drone di udara',
-            '1 kilometer hingga 10 kilometer di bawah permukaan air untuk pemetaan kontur kedalaman dasar lautan lepas'
+            '0,1 mm hingga 5 mm khusus untuk mengukur ketebalan selembar kertas',
+            '10 meter hingga 500 meter di ruang terbuka untuk ketinggian drone',
+            '1 kilometer hingga 10 kilometer di bawah permukaan air untuk kedalaman'
         ],
         answer: 0
     },
@@ -1330,9 +1330,9 @@ const BANK_SOAL = [
         q: 'Objek dengan permukaan berbahan kain wol tebal atau busa peredam suara sering kali sulit dideteksi secara akurat oleh sensor ultrasonik karena...',
         options: [
             'Permukaan lunak menyerap gelombang suara sehingga pantulannya lemah',
-            'Bahan kain wol menghasilkan medan magnet statis kuat yang mengganggu kinerja pin Echo pada modul sensor jarak',
-            'Suhu permukaan busa peredam terlalu dingin untuk dapat memantulkan sinyal gelombang cahaya inframerah kembali',
-            'Warna gelap pada permukaan kain menyerap seluruh tegangan listrik 5 volt dari papan mikrokontroler Arduino'
+            'Bahan kain wol menghasilkan medan magnet kuat yang mengganggu pin Echo',
+            'Suhu permukaan busa terlalu dingin untuk memantulkan gelombang cahaya',
+            'Warna gelap pada permukaan kain menyerap tegangan listrik 5 volt papan'
         ],
         answer: 0
     },
@@ -1341,9 +1341,9 @@ const BANK_SOAL = [
         q: 'Dalam kolaborasi pengembangan proyek rekayasa KKA, dokumentasi skema rangkaian dan komentar kode (`//`) sangat penting dilakukan agar...',
         options: [
             'Anggota tim lain mudah memahami alur sistem dan melakukan perbaikan',
-            'Ukuran kapasitas file program hasil kompilasi menjadi jauh lebih kecil saat diunggah ke dalam memori papan Arduino',
-            'Kecepatan eksekusi baris perintah oleh prosesor utama mikrokontroler meningkat secara signifikan saat dijalankan',
-            'Papan sirkuit prototipe tidak memerlukan proses pengujian ulang lagi sebelum dipresentasikan di depan kelas'
+            'Ukuran kapasitas file program hasil kompilasi menjadi jauh lebih kecil',
+            'Kecepatan eksekusi baris perintah oleh prosesor meningkat signifikan',
+            'Papan sirkuit prototipe tidak memerlukan proses pengujian ulang lagi'
         ],
         answer: 0
     },
@@ -1352,9 +1352,9 @@ const BANK_SOAL = [
         q: 'Format pertukaran data ringan berbasis teks yang paling umum digunakan saat perangkat IoT mengirimkan data sensor ke server web API adalah...',
         options: [
             'JSON (JavaScript Object Notation)',
-            'MP4 (MPEG-4 Part 14 Multimedia Video Container Format)',
-            'BMP (Uncompressed Raster Bitmap Image File Format)',
-            'WAV (Waveform Uncompressed Digital Audio File Format)'
+            'MP4 (MPEG-4 Video Container)',
+            'BMP (Uncompressed Bitmap Image)',
+            'WAV (Waveform Digital Audio)'
         ],
         answer: 0
     },
@@ -1363,9 +1363,9 @@ const BANK_SOAL = [
         q: 'Peran Cloud Computing (Komputasi Awan) dalam arsitektur sistem IoT berskala kota pintar (Smart City) adalah...',
         options: [
             'Menyimpan, mengolah, dan menganalisis jutaan data sensor terpusat',
-            'Menggantikan fungsi fisik seluruh kabel jaringan listrik dan tiang lampu penerangan umum di sepanjang jalan raya',
-            'Menurunkan suhu udara lingkungan perkotaan secara langsung melalui sistem pendingin udara dari ruang server pusat',
-            'Menghilangkan sepenuhnya kebutuhan koneksi jaringan internet pada setiap perangkat sensor yang terpasang di lapangan'
+            'Menggantikan fungsi fisik seluruh kabel listrik dan tiang lampu jalan',
+            'Menurunkan suhu udara lingkungan perkotaan lewat pendingin server',
+            'Menghilangkan sepenuhnya kebutuhan koneksi internet pada perangkat'
         ],
         answer: 0
     },
@@ -1374,9 +1374,9 @@ const BANK_SOAL = [
         q: 'Konsep Edge Computing pada sistem IoT modern diterapkan dengan cara...',
         options: [
             'Memproses sebagian data di perangkat lokal dekat sensor sebelum ke cloud',
-            'Mengirimkan seluruh data mentah rekaman video ke server luar negeri setiap milidetik tanpa penyaringan awal',
-            'Mematikan seluruh unit sensor lokal di lapangan dan hanya mengandalkan perhitungan estimasi manual oleh operator',
-            'Menempatkan papan mikrokontroler utama di bagian tepi luar kotak pelindung plastik agar terkena angin langsung'
+            'Mengirimkan seluruh rekaman video mentah ke server luar negeri tiap detik',
+            'Mematikan seluruh unit sensor lokal dan memakai perhitungan manual',
+            'Menempatkan papan mikrokontroler di bagian luar kotak pelindung plastik'
         ],
         answer: 0
     },
@@ -1385,9 +1385,9 @@ const BANK_SOAL = [
         q: 'Jika sebuah LED dihubungkan terbalik (kaki anoda ke GND dan kaki katoda ke pin digital HIGH), maka kondisi yang akan terjadi pada rangkaian adalah...',
         options: [
             'LED tidak menyala karena dioda hanya mengalirkan arus satu arah',
-            'LED akan menyala dua kali lebih terang dengan perubahan spektrum warna cahaya dari merah menjadi biru terang',
-            'Papan mikrokontroler Arduino akan langsung terbakar dan mengeluarkan asap dalam hitungan beberapa detik saja',
-            'Sensor ultrasonik yang terpasang di sebelahnya akan berhenti memancarkan gelombang suara frekuensi tinggi secara total'
+            'LED menyala dua kali lebih terang dengan perubahan spektrum warna',
+            'Papan mikrokontroler Arduino akan langsung terbakar dan berasap',
+            'Sensor ultrasonik di sebelahnya berhenti memancarkan gelombang suara'
         ],
         answer: 0
     },
@@ -1396,9 +1396,9 @@ const BANK_SOAL = [
         q: 'Dampak positif penerapan teknologi IoT dalam bidang kesehatan (Smart Healthcare) bagi pasien penyakit kronis adalah...',
         options: [
             'Pemantauan detak jantung dan kadar oksigen real-time oleh tenaga medis',
-            'Penggantian seluruh peran dokter spesialis dan perawat rumah sakit dengan robot mekanik otomatis sepenuhnya',
-            'Penghapusan kebutuhan konsumsi obat-obatan medis harian melalui terapi pancaran gelombang radio jaringan Wi-Fi',
-            'Peningkatan biaya perawatan rawat inap rumah sakit akibat penggunaan kabel jaringan serat optik di kamar pasien'
+            'Penggantian seluruh peran dokter spesialis dengan robot mekanik otomatis',
+            'Penghapusan kebutuhan konsumsi obat harian lewat terapi gelombang Wi-Fi',
+            'Peningkatan biaya perawatan rawat inap akibat pemasangan kabel serat optik'
         ],
         answer: 0
     },
@@ -1407,9 +1407,9 @@ const BANK_SOAL = [
         q: 'Etika dan tanggung jawab utama pengembang sistem IoT terkait data pribadi pengguna (seperti rekaman kamera pintar atau lokasi GPS) adalah...',
         options: [
             'Menjaga kerahasiaan data dengan enkripsi dan izin pengguna',
-            'Menjual riwayat lokasi perjalanan harian pengguna kepada pihak pengiklan komersial tanpa pemberitahuan terlebih dahulu',
-            'Membuka akses publik seluruh tayangan kamera pengawas rumah agar dapat dipantau oleh siapa saja melalui internet',
-            'Menyimpan seluruh kata sandi akun pengguna di dalam basis data server dalam bentuk teks biasa tanpa proteksi'
+            'Menjual riwayat lokasi perjalanan pengguna kepada pengiklan komersial',
+            'Membuka akses publik seluruh tayangan kamera pengawas rumah di internet',
+            'Menyimpan seluruh kata sandi pengguna dalam bentuk teks biasa terbuka'
         ],
         answer: 0
     },
@@ -1502,7 +1502,7 @@ const BANK_SOAL = [
  * STATE MANAJEMEN APLIKASI & MULTI-USER (KAPASITAS 30+ SISWA)
  * ============================================================================
  */
-// URL GOOGLE APPS SCRIPT SUDAH TERTANAM OTOMATIS UNTUK 30+ SISWA:
+// URL GOOGLE APPS SCRIPT SUDAH TERTANAM OTOMATIS UNTUK 30+ SISWA (TIDAK DIUBAH):
 const DEFAULT_GSHEET_URL = "https://script.google.com/macros/s/AKfycbyePEpBWa9HN_LrYzhzyAfiVblfUqnAgud7NOCgvvgYgMMWZ3RJ3plmrxVMC2nTV2Uz_Q/exec";
 
 let activeQuestions = [];
@@ -1667,7 +1667,6 @@ function formatTime(sec) {
  * ============================================================================
  */
 function formatQuestionHTML(rawText) {
-    // Memisahkan teks biasa dan blok kode ```cpp ... ```
     const parts = rawText.split(/```cpp\n([\s\S]*?)```/g);
     let html = '';
     for (let i = 0; i < parts.length; i++) {
@@ -1684,14 +1683,13 @@ function formatQuestionHTML(rawText) {
 }
 
 function escapeHTML(str) {
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return str.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
 }
 
 function renderQuestion() {
     const q = activeQuestions[currentIdx];
     const total = activeQuestions.length;
 
-    // Update Header Progress
     document.getElementById('progressCounter').textContent = `${currentIdx + 1} / ${total}`;
     document.getElementById('progressBar').style.width = `${((currentIdx + 1) / total) * 100}%`;
 
@@ -1705,7 +1703,7 @@ function renderQuestion() {
     if (q.type === 'PG') {
         badge.textContent = `PILIHAN GANDA #${currentIdx + 1} (Bank #${q.id})`;
         badge.className = 'px-3 py-1 rounded-lg bg-cyan-500/15 text-cyan-300 text-xs font-bold border border-cyan-500/30';
-        lengthInfo.textContent = 'Opsi Teracak Otomatis';
+        lengthInfo.textContent = 'Panjang Opsi Seimbang & Teracak';
 
         optContainer.classList.remove('hidden');
         essayContainer.classList.add('hidden');
@@ -1755,7 +1753,6 @@ function renderQuestion() {
         };
     }
 
-    // Atur tombol navigasi
     document.getElementById('btnPrev').disabled = currentIdx === 0;
     if (currentIdx === total - 1) {
         document.getElementById('btnNext').classList.add('hidden');
@@ -1909,13 +1906,11 @@ async function finalizeSubmission() {
         jawabanEsai: detailEsai
     };
 
-    // Simpan ke daftar rekap kelas lokal
     classRecords.unshift(record);
     try {
         localStorage.setItem('kka_class_records', JSON.stringify(classRecords));
     } catch (e) {}
 
-    // Tampilkan layar hasil
     document.getElementById('resultSubtitle').textContent = `Peserta: ${record.nama} (${record.kelas} • Absen ${record.absen})`;
     document.getElementById('resScorePG').textContent = scorePG;
     document.getElementById('resCorrectPG').textContent = `${pgCorrect}/${pgTotal}`;
@@ -1924,14 +1919,12 @@ async function finalizeSubmission() {
 
     switchView('result');
 
-    // Kirim ke Google Spreadsheet jika URL Web App sudah diatur
     const statusBox = document.getElementById('syncStatusBox');
     const statusText = document.getElementById('syncStatusText');
 
     if (customWebhookUrl && customWebhookUrl.startsWith('http')) {
         statusText.textContent = 'Mengirim jawaban & skor otomatis ke Google Spreadsheet...';
         try {
-            // Gunakan FormData / URLSearchParams agar diterima mulus oleh e.parameter.payload di Google Apps Script tanpa hambatan CORS
             const formBody = new URLSearchParams();
             formBody.append('payload', JSON.stringify(record));
 
@@ -1986,7 +1979,6 @@ async function testSpreadsheetConnection() {
         return;
     }
 
-    // Simpan sekalian URL-nya
     customWebhookUrl = url;
     try { localStorage.setItem('kka_gsheet_url', url); } catch (e) {}
 
@@ -2053,7 +2045,6 @@ function downloadStudentCSV() {
     csv += 'Nomor Soal,Jawaban Siswa\n';
 
     Object.entries(rec.jawabanPG).forEach(([k, v]) => {
-        // Hilangkan status (Benar/Salah) di file unduhan siswa agar tidak disebarkan ke teman
         const cleanChoice = String(v).split(' ')[0];
         csv += `"${k}","${cleanChoice}"\n`;
     });
@@ -2105,9 +2096,9 @@ function simulate30Students() {
     ];
 
     sampleNames.forEach((nama, idx) => {
-        const benar = Math.floor(Math.random() * 26) + 54; // 54 - 80 benar
+        const benar = Math.floor(Math.random() * 26) + 54;
         const skor = Math.round((benar / 80) * 100);
-        const esai = Math.floor(Math.random() * 5) + 16; // 16 - 20 esai
+        const esai = Math.floor(Math.random() * 5) + 16;
         const menit = String(Math.floor(Math.random() * 25) + 20).padStart(2, '0');
         const detik = String(Math.floor(Math.random() * 60)).padStart(2, '0');
 
